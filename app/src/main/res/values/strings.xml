@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">ExpM</string>
+    <string name="splash_tagline">Income &amp; Expense Tracker</string>
+    <string name="add_entry">Add</string>
+
+    <!-- Add Entry screen strings -->
+    <string name="add_entry_title">Add Entry</string>
+    <string name="label_title">Title</string>
+    <string name="hint_title">Enter title</string>
+    <string name="label_amount">Amount</string>
+    <string name="hint_amount">Enter amount</string>
+    <string name="label_type">Type</string>
+    <string name="label_category">Category</string>
+    <string name="label_notes">Notes</string>
+    <string name="hint_notes">Add notes (optional)</string>
+    <string name="save">Save</string>
+    <string name="label_date">Date</string>
+    <string name="hint_date">Select date</string>
+    <string name="delete">Delete</string>
+
+    <!-- Main screen entries count strings -->
+    <string name="entries_count_default">Entries: 0</string>
+    <string name="entries_count_format">Entries: %d</string>
+
+    <!-- RecyclerView / Item strings -->
+    <string name="empty_entries">No entries for this month</string>
+    <string name="item_title_placeholder">Title</string>
+    <string name="item_amount_placeholder">Rs 0.00</string>
+    <string name="item_category_placeholder">Category</string>
+    <string name="item_date_placeholder">YYYY-MM-DD</string>
+    <string name="item_type_placeholder">Expense</string>
+</resources>

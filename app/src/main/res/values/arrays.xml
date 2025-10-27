@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="entry_types">
+        <item>Expense</item>
+        <item>Income</item>
+    </string-array>
+
+    <string-array name="expense_categories">
+        <item>Grocery</item>
+        <item>Food</item>
+        <item>Transport</item>
+        <item>Rent</item>
+        <item>Shopping</item>
+        <item>Medical</item>
+        <item>Entertainment</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="income_categories">
+        <item>Salary</item>
+        <item>Bank</item>
+        <item>Shares</item>
+        <item>Others</item>
+    </string-array>
+</resources>
