@@ -2,6 +2,7 @@ package com.example.expm
 
 import android.app.Application
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -13,6 +14,9 @@ class MyApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Force light mode regardless of system theme
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
         // Schedule a unique one-time work to run at app startup.
         try {
