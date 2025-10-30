@@ -11,6 +11,7 @@ data class Entry(
     val type: String,
     val category: String,
     val date: String,
-    val notes: String
+    val notes: String,
+    // Mark whether an entry has been persisted/exported (0 = false, 1 = true)
+    val isPersisted: Boolean = false
 )
-

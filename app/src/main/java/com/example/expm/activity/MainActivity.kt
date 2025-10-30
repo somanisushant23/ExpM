@@ -43,13 +43,18 @@ class MainActivity : AppCompatActivity() {
             ViewModelProvider.AndroidViewModelFactory.getInstance(application)
         ).get(MainViewModel::class.java)
 
-        val tvCount = findViewById<TextView>(R.id.tv_entries_count)
+
         val tvEmpty = findViewById<TextView>(R.id.tv_empty)
+        val tvTotalAmount = findViewById<TextView>(R.id.tv_total_amount)
 
         viewModel.entriesForCurrentMonth.observe(this) { filtered ->
             adapter.submitList(filtered)
-            tvCount.text = getString(R.string.entries_count_format, filtered.size)
+
             tvEmpty.visibility = if (filtered.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+
+            // Calculate and display total amount for expenses only
+            val totalExpenses = filtered.filter { it.type == "Expense" }.sumOf { it.amount }
+            tvTotalAmount.text = String.format(java.util.Locale.getDefault(), "Total Expenses: Rs %.0f", totalExpenses)
         }
     }
 }
