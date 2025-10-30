@@ -32,6 +32,11 @@
             android:name=".activity.AddEntryActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".activity.AnalyticsActivity"
+            android:exported="false"
+            android:parentActivityName=".activity.MainActivity" />
+
     </application>
 
 </manifest>

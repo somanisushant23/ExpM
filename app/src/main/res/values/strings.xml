@@ -38,4 +38,17 @@
     <string name="nav_about">About</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- Analytics screen strings -->
+    <string name="current_month_summary">Current Month Summary</string>
+    <string name="total_expenses">Total Expenses</string>
+    <string name="total_income">Total Income</string>
+    <string name="net_balance">Net Balance</string>
+    <string name="expense_by_category">Expense by Category</string>
+    <string name="income_by_category">Income by Category</string>
+    <string name="monthly_trends">Monthly Trends (Last 6 Months)</string>
+    <string name="no_expenses_this_month">No expenses this month</string>
+    <string name="no_income_this_month">No income this month</string>
+    <string name="expenses_label">Expenses:</string>
+    <string name="income_label">Income:</string>
 </resources>

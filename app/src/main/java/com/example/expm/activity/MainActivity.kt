@@ -1,7 +1,11 @@
 package com.example.expm.activity
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
@@ -120,16 +124,37 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             when (currentFilter) {
                 "Expense" -> {
                     val totalExpenses = filtered.sumOf { it.amount }
-                    tvTotalAmount.text = String.format(java.util.Locale.getDefault(), "Total Expenses: Rs %.0f", totalExpenses)
+                    val text = String.format(java.util.Locale.getDefault(), "Total Expenses: Rs %.0f", totalExpenses)
+                    val spannable = SpannableString(text)
+                    spannable.setSpan(ForegroundColorSpan(Color.parseColor("#D32F2F")), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    tvTotalAmount.text = spannable
                 }
                 "Income" -> {
                     val totalIncome = filtered.sumOf { it.amount }
-                    tvTotalAmount.text = String.format(java.util.Locale.getDefault(), "Total Income: Rs %.0f", totalIncome)
+                    val text = String.format(java.util.Locale.getDefault(), "Total Income: Rs %.0f", totalIncome)
+                    val spannable = SpannableString(text)
+                    spannable.setSpan(ForegroundColorSpan(Color.parseColor("#388E3C")), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    tvTotalAmount.text = spannable
                 }
                 else -> {
                     val totalExpenses = filtered.filter { it.type == "Expense" }.sumOf { it.amount }
                     val totalIncome = filtered.filter { it.type == "Income" }.sumOf { it.amount }
-                    tvTotalAmount.text = String.format(java.util.Locale.getDefault(), "Expenses: Rs %.0f | Income: Rs %.0f", totalExpenses, totalIncome)
+                    val text = String.format(java.util.Locale.getDefault(), "Expenses: Rs %.0f | Income: Rs %.0f", totalExpenses, totalIncome)
+                    val spannable = SpannableString(text)
+
+                    // Color "Expenses: Rs X" in red
+                    val expensesEnd = text.indexOf(" |")
+                    if (expensesEnd != -1) {
+                        spannable.setSpan(ForegroundColorSpan(Color.parseColor("#D32F2F")), 0, expensesEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
+
+                    // Color "Income: Rs X" in green
+                    val incomeStart = text.indexOf("Income:")
+                    if (incomeStart != -1) {
+                        spannable.setSpan(ForegroundColorSpan(Color.parseColor("#388E3C")), incomeStart, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
+
+                    tvTotalAmount.text = spannable
                 }
             }
         }
@@ -143,9 +168,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 // Already on this screen
             }
             R.id.nav_analytics -> {
-                supportActionBar?.title = getString(R.string.nav_analytics)
-                Toast.makeText(this, "Analytics - Coming Soon!", Toast.LENGTH_SHORT).show()
-                // TODO: Navigate to Analytics Activity
+                val intent = Intent(this, AnalyticsActivity::class.java)
+                startActivity(intent)
             }
             R.id.nav_settings -> {
                 supportActionBar?.title = getString(R.string.nav_settings)

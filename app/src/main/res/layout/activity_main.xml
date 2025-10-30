@@ -31,7 +31,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical"
-            android:layout_marginTop="56dp"
+            android:layout_marginTop="4dp"
             android:padding="16dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -40,7 +40,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Total: Rs 0.00"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
