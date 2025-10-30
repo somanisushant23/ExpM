@@ -29,4 +29,7 @@ interface EntryDao {
     // Reactive single entry by id
     @Query("SELECT * FROM entries WHERE id = :id LIMIT 1")
     fun getByIdFlow(id: Long): Flow<Entry?>
+
+    @Query("SELECT * FROM entries WHERE isPersisted = 0 ORDER BY date DESC")
+    suspend fun getUnsyncEntries(): List<Entry>
 }

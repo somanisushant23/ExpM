@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "789853810079",
+    "project_id": "expm-804d3",
+    "storage_bucket": "expm-804d3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:789853810079:android:276fd7ac6072a8435861aa",
+        "android_client_info": {
+          "package_name": "com.example.expm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBH8nG-jb1eCDU0_8qPLq8UDCSF5pcQO30"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -14,12 +14,13 @@
         android:padding="16dp">
 
         <TextView
-            android:id="@+id/tv_entries_count"
+            android:id="@+id/tv_total_amount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/entries_count_default"
-            android:layout_marginTop="12dp"
-            android:textSize="16sp" />
+            android:text="Total: Rs 0.00"
+            android:layout_marginTop="8dp"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <!-- RecyclerView showing entries for current month -->
         <androidx.recyclerview.widget.RecyclerView
