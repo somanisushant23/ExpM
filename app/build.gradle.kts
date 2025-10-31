@@ -19,9 +19,6 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        // Expose versionName as a string resource so layouts can reference it at build time
-        // This creates a string resource named `tv_version` with the value `v<versionName>`
-        //resValue("string", "tv_version", "\"v${'$'}{versionName}\"")
         resValue("string", "tv_version", "$versionName")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -79,6 +76,10 @@ dependencies {
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
+    // Retrofit for API calls
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
 
     testImplementation(libs.junit)

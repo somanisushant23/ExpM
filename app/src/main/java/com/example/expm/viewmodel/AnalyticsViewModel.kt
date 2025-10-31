@@ -33,7 +33,7 @@ class AnalyticsViewModel(application: Application) : AndroidViewModel(applicatio
     val entriesForCurrentMonth: LiveData<List<Entry>> = dao.getAllFlow().map { list ->
         list.filter { entry ->
             try {
-                val d = sdf.parse(entry.date) ?: return@filter false
+                val d = sdf.parse(entry.created_on.toString()) ?: return@filter false
                 val c = Calendar.getInstance()
                 c.time = d
                 val y = c.get(Calendar.YEAR)
@@ -49,7 +49,7 @@ class AnalyticsViewModel(application: Application) : AndroidViewModel(applicatio
     val expenseByCategoryForCurrentMonth: LiveData<List<CategoryTotal>> = dao.getAllFlow().map { list ->
         list.filter { entry ->
             try {
-                val d = sdf.parse(entry.date) ?: return@filter false
+                val d = sdf.parse(entry.created_on.toString()) ?: return@filter false
                 val c = Calendar.getInstance()
                 c.time = d
                 val y = c.get(Calendar.YEAR)
@@ -81,7 +81,7 @@ class AnalyticsViewModel(application: Application) : AndroidViewModel(applicatio
         // Group entries by month
         list.forEach { entry ->
             try {
-                val d = sdf.parse(entry.date) ?: return@forEach
+                val d = sdf.parse(entry.created_on.toString()) ?: return@forEach
                 val c = Calendar.getInstance()
                 c.time = d
                 val monthKey = monthFormat.format(c.time)

@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.expm.R
 import com.example.expm.data.Entry
+import com.example.expm.utils.AppUtils
 import com.example.expm.viewmodel.AddEntryViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -43,7 +44,8 @@ class AddEntryActivity : AppCompatActivity() {
 
         // Setup date helpers (reusable calendar)
         val calendar = Calendar.getInstance()
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        // Update date format to dd-MM-YYYY
+        val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
         etDate.setText(dateFormat.format(calendar.time))
 
         etDate.setOnClickListener {
@@ -145,15 +147,9 @@ class AddEntryActivity : AppCompatActivity() {
                 etNotes.setText(entry.notes)
                 // set date and update calendar used by date picker
                 try {
-                    val parsed = dateFormat.parse(entry.date)
-                    if (parsed != null) {
-                        calendar.time = parsed
-                        etDate.setText(dateFormat.format(calendar.time))
-                    } else {
-                        etDate.setText(entry.date)
-                    }
+                    etDate.setText(AppUtils.formatTimestampToDate(entry.created_on))
                 } catch (_: Exception) {
-                    etDate.setText(entry.date)
+                    etDate.setText(entry.created_on.toString())
                 }
                 // set type
                 val typePos = if (entry.type.equals("Income", ignoreCase = true)) 1 else 0
@@ -194,7 +190,7 @@ class AddEntryActivity : AppCompatActivity() {
                     amount = amount,
                     type = type,
                     category = category,
-                    date = date,
+                    created_on = AppUtils.dateToTimestamp2(date),
                     notes = notes
                 )
                 if (updated != null) viewModel.updateEntry(updated)
@@ -229,7 +225,7 @@ class AddEntryActivity : AppCompatActivity() {
                     amount = amount,
                     type = type,
                     category = category,
-                    date = date,
+                    created_on = AppUtils.dateToTimestamp2(date),
                     notes = notes
                 )
 

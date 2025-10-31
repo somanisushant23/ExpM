@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expm.R
 import com.example.expm.data.Entry
+import com.example.expm.utils.AppUtils
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -41,7 +42,7 @@ class EntryAdapter(private val onItemClick: (Entry) -> Unit) : ListAdapter<Entry
                 tvAmount.text = entry.amount.toString()
             }
             tvCategory.text = entry.category
-            tvDate.text = entry.date
+            tvDate.text = AppUtils.formatTimestampToDate(entry.created_on)
             tvType.text = entry.type
 
             // Set color based on type
