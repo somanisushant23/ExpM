@@ -1,5 +1,6 @@
 package com.example.expm.adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,6 +43,13 @@ class EntryAdapter(private val onItemClick: (Entry) -> Unit) : ListAdapter<Entry
             tvCategory.text = entry.category
             tvDate.text = entry.date
             tvType.text = entry.type
+
+            // Set color based on type
+            if (entry.type.equals("expense", ignoreCase = true)) {
+                tvType.setTextColor(Color.RED)
+            } else {
+                tvType.setTextColor(Color.parseColor("#388E3C"))
+            }
 
             itemView.setOnClickListener { onItemClick(entry) }
         }

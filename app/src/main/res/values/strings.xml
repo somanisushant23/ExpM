@@ -51,4 +51,15 @@
     <string name="no_income_this_month">No income this month</string>
     <string name="expenses_label">Expenses:</string>
     <string name="income_label">Income:</string>
+
+    <!-- Sort options -->
+    <string name="action_sort">Sort</string>
+    <string name="sort_date_newest">Date (Newest First)</string>
+    <string name="sort_date_oldest">Date (Oldest First)</string>
+    <string name="sort_amount_highest">Amount (Highest First)</string>
+    <string name="sort_amount_lowest">Amount (Lowest First)</string>
+
+    <!-- Search options -->
+    <string name="action_search">Search</string>
+    <string name="search_hint">Search by title, amount, or notes</string>
 </resources>

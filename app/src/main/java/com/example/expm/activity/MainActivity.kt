@@ -6,12 +6,14 @@ import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
+import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -45,12 +47,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener(this)
 
+        // Find header's version TextView (we'll update it when drawer opens)
+        val headerView = navigationView.getHeaderView(0)
+        val tvVersion = headerView.findViewById<TextView>(R.id.tv_version)
+
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar,
             R.string.navigation_drawer_open,
             R.string.navigation_drawer_close
         )
         drawerLayout.addDrawerListener(toggle)
+
+        // Update version when drawer opens (keeps behavior consistent)
+        drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerSlide(drawerView: android.view.View, slideOffset: Float) {}
+            override fun onDrawerStateChanged(newState: Int) {}
+            override fun onDrawerClosed(drawerView: android.view.View) {}
+            override fun onDrawerOpened(drawerView: android.view.View) {
+                // Use BuildConfig which reflects versionName from build.gradle at build time
+
+            }
+        })
+
         toggle.syncState()
 
         // Set default selection
@@ -160,6 +178,64 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+
+        // Setup SearchView
+        val searchItem = menu.findItem(R.id.action_search)
+        val searchView = searchItem?.actionView as? SearchView
+
+        searchView?.apply {
+            queryHint = getString(R.string.search_hint)
+
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    viewModel.setSearchQuery(query ?: "")
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    viewModel.setSearchQuery(newText ?: "")
+                    return true
+                }
+            })
+
+            // Clear search when SearchView is collapsed
+            setOnCloseListener {
+                viewModel.setSearchQuery("")
+                false
+            }
+        }
+
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.sort_date_desc -> {
+                viewModel.setSortOrder("date_desc")
+                Toast.makeText(this, "Sorted by Date (Newest First)", Toast.LENGTH_SHORT).show()
+                true
+            }
+            R.id.sort_date_asc -> {
+                viewModel.setSortOrder("date_asc")
+                Toast.makeText(this, "Sorted by Date (Oldest First)", Toast.LENGTH_SHORT).show()
+                true
+            }
+            R.id.sort_amount_desc -> {
+                viewModel.setSortOrder("amount_desc")
+                Toast.makeText(this, "Sorted by Amount (Highest First)", Toast.LENGTH_SHORT).show()
+                true
+            }
+            R.id.sort_amount_asc -> {
+                viewModel.setSortOrder("amount_asc")
+                Toast.makeText(this, "Sorted by Amount (Lowest First)", Toast.LENGTH_SHORT).show()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.nav_transactions -> {
@@ -177,9 +253,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 // TODO: Navigate to Settings Activity
             }
             R.id.nav_about -> {
-                supportActionBar?.title = getString(R.string.nav_about)
-                Toast.makeText(this, "About - Coming Soon!", Toast.LENGTH_SHORT).show()
-                // TODO: Navigate to About Activity
+                val intent = Intent(this, AboutActivity::class.java)
+                startActivity(intent)
             }
         }
         drawerLayout.closeDrawer(GravityCompat.START)
