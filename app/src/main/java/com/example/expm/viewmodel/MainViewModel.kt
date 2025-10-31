@@ -1,6 +1,7 @@
 package com.example.expm.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -8,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import com.example.expm.data.AppDatabase
 import com.example.expm.data.Entry
+import com.example.expm.utils.AppUtils
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -59,13 +61,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val filtered = entries.filter { entry ->
                 // First filter by current month
                 val isCurrentMonth = try {
-                    val d = sdf.parse(entry.date) ?: return@filter false
-                    val c = Calendar.getInstance()
-                    c.time = d
-                    val y = c.get(Calendar.YEAR)
-                    val m = c.get(Calendar.MONTH)
-                    y == currentYear && m == currentMonth
-                } catch (_: Exception) {
+                    AppUtils.isTimestampInCurrentMonth(entry.created_on)
+                } catch (e: Exception) {
+                    Log.e("MainViewModel", "Error occurred: ", e)
                     false
                 }
 
@@ -92,11 +90,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             // Sort the filtered list
             val sorted = when (currentSortOrder) {
-                "date_desc" -> filtered.sortedByDescending { it.date }
-                "date_asc" -> filtered.sortedBy { it.date }
+                "date_desc" -> filtered.sortedByDescending { it.created_on.toString() }
+                "date_asc" -> filtered.sortedBy { it.created_on.toString() }
                 "amount_desc" -> filtered.sortedByDescending { it.amount }
                 "amount_asc" -> filtered.sortedBy { it.amount }
-                else -> filtered.sortedByDescending { it.date }
+                else -> filtered.sortedByDescending { it.created_on.toString() }
             }
 
             value = sorted
@@ -123,4 +121,3 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 }
-

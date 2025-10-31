@@ -10,7 +10,8 @@ data class Entry(
     val amount: Double,
     val type: String,
     val category: String,
-    val date: String,
+    val created_on: Long = System.currentTimeMillis(),
+    val updated_on: Long = System.currentTimeMillis(),
     val notes: String,
     // Mark whether an entry has been persisted/exported (0 = false, 1 = true)
     val isPersisted: Boolean = false

@@ -19,17 +19,17 @@ interface EntryDao {
     @Delete
     suspend fun delete(entry: Entry): Int
 
-    @Query("SELECT * FROM entries ORDER BY date DESC")
+    @Query("SELECT * FROM entries ORDER BY created_on DESC")
     suspend fun getAll(): List<Entry>
 
     // Reactive stream of entries; Room will emit updates when the table changes
-    @Query("SELECT * FROM entries ORDER BY date DESC")
+    @Query("SELECT * FROM entries ORDER BY created_on DESC")
     fun getAllFlow(): Flow<List<Entry>>
 
     // Reactive single entry by id
     @Query("SELECT * FROM entries WHERE id = :id LIMIT 1")
     fun getByIdFlow(id: Long): Flow<Entry?>
 
-    @Query("SELECT * FROM entries WHERE isPersisted = 0 ORDER BY date DESC")
+    @Query("SELECT * FROM entries WHERE isPersisted = 0 ORDER BY created_on DESC")
     suspend fun getUnsyncEntries(): List<Entry>
 }

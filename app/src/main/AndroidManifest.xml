@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.expm">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".MyApp"
         android:allowBackup="true"
@@ -41,6 +43,14 @@
             android:name=".activity.AboutActivity"
             android:exported="false"
             android:parentActivityName=".activity.MainActivity" />
+
+        <activity
+            android:name=".activity.LoginActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".activity.RegistrationActivity"
+            android:exported="true" />
 
     </application>
 

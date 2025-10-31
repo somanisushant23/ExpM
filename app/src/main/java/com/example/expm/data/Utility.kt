@@ -8,8 +8,7 @@ data class Utility(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val data_key: String,
     val data_value: String,
-    val created_on: String,
-    val updated_on: String,
+    val created_on: Long = System.currentTimeMillis(),
+    val updated_on: Long = System.currentTimeMillis(),
     val isActive: Boolean = true
 )
-
