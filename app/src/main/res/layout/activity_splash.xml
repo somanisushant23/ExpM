@@ -22,7 +22,7 @@
             android:layout_height="120dp"
             android:background="@drawable/circle_white"
             android:padding="20dp"
-            android:src="@mipmap/ic_launcher"
+            android:src="@drawable/expm_svg_without_bg"
             android:contentDescription="@string/app_name"
             android:scaleType="centerInside" />
 
