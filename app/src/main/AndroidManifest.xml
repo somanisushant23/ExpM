@@ -37,6 +37,11 @@
             android:exported="false"
             android:parentActivityName=".activity.MainActivity" />
 
+        <activity
+            android:name=".activity.AboutActivity"
+            android:exported="false"
+            android:parentActivityName=".activity.MainActivity" />
+
     </application>
 
 </manifest>

@@ -3,12 +3,11 @@ package com.example.expm.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.switchMap
 import com.example.expm.data.AppDatabase
 import com.example.expm.data.Entry
-import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -25,14 +24,39 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     // Filter type: "All", "Expense", or "Income"
     private val _filterType = MutableLiveData<String>("All")
 
+    // Sort order: "date_desc", "date_asc", "amount_desc", "amount_asc"
+    private val _sortOrder = MutableLiveData<String>("date_desc")
+
+    // Search query
+    private val _searchQuery = MutableLiveData<String>("")
+
     fun setFilterType(type: String) {
         _filterType.value = type
     }
 
-    // Expose entries filtered to current month as LiveData so the UI can observe reactively
-    val entriesForCurrentMonth: LiveData<List<Entry>> = _filterType.switchMap { filterType ->
-        dao.getAllFlow().map { list ->
-            list.filter { entry ->
+    fun setSortOrder(order: String) {
+        _sortOrder.value = order
+    }
+
+    fun setSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+
+    // All entries from database
+    private val allEntriesLiveData: LiveData<List<Entry>> = dao.getAllFlow().asLiveData()
+
+    // Expose entries filtered and sorted
+    val entriesForCurrentMonth: LiveData<List<Entry>> = MediatorLiveData<List<Entry>>().apply {
+        var currentEntries: List<Entry>? = null
+        var currentFilterType: String = "All"
+        var currentSortOrder: String = "date_desc"
+        var currentSearchQuery: String = ""
+
+        fun update() {
+            val entries = currentEntries ?: return
+
+            // Filter by current month and type
+            val filtered = entries.filter { entry ->
                 // First filter by current month
                 val isCurrentMonth = try {
                     val d = sdf.parse(entry.date) ?: return@filter false
@@ -46,18 +70,57 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 // Then filter by type
-                if (!isCurrentMonth) {
-                    false
-                } else {
-                    when (filterType) {
-                        "All" -> true
-                        "Expense" -> entry.type == "Expense"
-                        "Income" -> entry.type == "Income"
-                        else -> true
-                    }
+                val matchesType = when (currentFilterType) {
+                    "All" -> true
+                    "Expense" -> entry.type == "Expense"
+                    "Income" -> entry.type == "Income"
+                    else -> true
                 }
+
+                // Then filter by search query (title, amount, or notes)
+                val matchesSearch = if (currentSearchQuery.isEmpty()) {
+                    true
+                } else {
+                    val query = currentSearchQuery.lowercase()
+                    entry.title.lowercase().contains(query) ||
+                    entry.amount.toString().contains(query) ||
+                    entry.notes.lowercase().contains(query)
+                }
+
+                isCurrentMonth && matchesType && matchesSearch
             }
-        }.asLiveData()
+
+            // Sort the filtered list
+            val sorted = when (currentSortOrder) {
+                "date_desc" -> filtered.sortedByDescending { it.date }
+                "date_asc" -> filtered.sortedBy { it.date }
+                "amount_desc" -> filtered.sortedByDescending { it.amount }
+                "amount_asc" -> filtered.sortedBy { it.amount }
+                else -> filtered.sortedByDescending { it.date }
+            }
+
+            value = sorted
+        }
+
+        addSource(allEntriesLiveData) { entries ->
+            currentEntries = entries
+            update()
+        }
+
+        addSource(_filterType) { filterType ->
+            currentFilterType = filterType
+            update()
+        }
+
+        addSource(_sortOrder) { sortOrder ->
+            currentSortOrder = sortOrder
+            update()
+        }
+
+        addSource(_searchQuery) { searchQuery ->
+            currentSearchQuery = searchQuery
+            update()
+        }
     }
 }
 

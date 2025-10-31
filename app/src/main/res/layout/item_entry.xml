@@ -17,7 +17,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/item_title_placeholder"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
@@ -40,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/item_category_placeholder"
-            android:textSize="12sp"
+            android:textSize="14sp"
             android:alpha="0.8" />
 
         <TextView

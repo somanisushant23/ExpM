@@ -19,6 +19,11 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        // Expose versionName as a string resource so layouts can reference it at build time
+        // This creates a string resource named `tv_version` with the value `v<versionName>`
+        //resValue("string", "tv_version", "\"v${'$'}{versionName}\"")
+        resValue("string", "tv_version", "$versionName")
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
