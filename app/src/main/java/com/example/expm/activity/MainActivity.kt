@@ -12,20 +12,27 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expm.R
 import com.example.expm.adapter.EntryAdapter
+import com.example.expm.data.AppDatabase
+import com.example.expm.network.utils.TokenManager
 import com.example.expm.viewmodel.MainViewModel
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -256,8 +263,64 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val intent = Intent(this, AboutActivity::class.java)
                 startActivity(intent)
             }
+            R.id.nav_logout -> {
+                showLogoutConfirmationDialog()
+                return true // Don't close drawer yet, will close after confirmation
+            }
         }
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    /**
+     * Show logout confirmation dialog
+     */
+    private fun showLogoutConfirmationDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Logout")
+            .setMessage("Are you sure you want to logout? All local data will be cleared.")
+            .setPositiveButton("Logout") { _, _ ->
+                performLogout()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+                drawerLayout.closeDrawer(GravityCompat.START)
+            }
+            .setOnCancelListener {
+                drawerLayout.closeDrawer(GravityCompat.START)
+            }
+            .show()
+    }
+
+    /**
+     * Perform logout - clear all data and redirect to login
+     */
+    private fun performLogout() {
+        lifecycleScope.launch {
+            try {
+                // Clear all data in background thread
+                withContext(Dispatchers.IO) {
+                    // Clear database
+                    val database = AppDatabase.getInstance(applicationContext)
+                    database.clearAllTables()
+
+                    // Clear token and user info
+                    val tokenManager = TokenManager.getInstance(applicationContext)
+                    tokenManager.clear()
+                }
+
+                // Show success message
+                Toast.makeText(this@MainActivity, "Logged out successfully", Toast.LENGTH_SHORT).show()
+
+                // Redirect to login activity
+                val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
+            } catch (e: Exception) {
+                // Handle error
+                Toast.makeText(this@MainActivity, "Error during logout: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

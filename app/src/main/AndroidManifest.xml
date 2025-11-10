@@ -14,7 +14,8 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/expm_svg_with_bg"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ExpM">
+        android:theme="@style/Theme.ExpM"
+        android:usesCleartextTraffic="true">
 
         <activity
             android:name=".activity.MainActivity"

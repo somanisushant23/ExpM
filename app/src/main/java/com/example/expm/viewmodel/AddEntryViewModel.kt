@@ -46,7 +46,7 @@ class AddEntryViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             val res = withContext(Dispatchers.IO) {
                 try {
-                    db.entryDao().update(entry)
+                    db.entryDao().update(entry.copy(isUpdated = true))
                 } catch (_: Throwable) {
                     -1
                 }
@@ -60,7 +60,7 @@ class AddEntryViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             val res = withContext(Dispatchers.IO) {
                 try {
-                    db.entryDao().delete(entry)
+                    db.entryDao().update(entry.copy(isDeleted = true))
                 } catch (_: Throwable) {
                     -1
                 }

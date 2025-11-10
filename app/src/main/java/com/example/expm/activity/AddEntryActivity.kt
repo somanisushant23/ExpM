@@ -191,7 +191,10 @@ class AddEntryActivity : AppCompatActivity() {
                     type = type,
                     category = category,
                     created_on = AppUtils.dateToTimestamp2(date),
-                    notes = notes
+                    notes = notes,
+                    isPersisted = true,
+                    isUpdated = true,
+                    updated_on = System.currentTimeMillis()
                 )
                 if (updated != null) viewModel.updateEntry(updated)
             }
@@ -226,7 +229,8 @@ class AddEntryActivity : AppCompatActivity() {
                     type = type,
                     category = category,
                     created_on = AppUtils.dateToTimestamp2(date),
-                    notes = notes
+                    notes = notes,
+                    remoteId = 0L
                 )
 
                 viewModel.insertEntry(entry)

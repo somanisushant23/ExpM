@@ -6,13 +6,14 @@
     </string-array>
 
     <string-array name="expense_categories">
-        <item>Grocery</item>
+        <item>Entertainment</item>
         <item>Food</item>
-        <item>Transport</item>
+        <item>Grocery</item>
+        <item>Medical</item>
         <item>Rent</item>
         <item>Shopping</item>
-        <item>Medical</item>
-        <item>Entertainment</item>
+        <item>Transport</item>
+        <item>Utility</item>
         <item>Other</item>
     </string-array>
 

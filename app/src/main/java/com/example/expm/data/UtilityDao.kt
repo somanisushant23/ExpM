@@ -26,5 +26,8 @@ interface UtilityDao {
     @Query("SELECT * FROM utilities WHERE data_key = :dataKey AND isActive = 1 LIMIT 1")
     fun getByKeyFlow(dataKey: String): Flow<Utility?>
 
+    @Query("SELECT * FROM utilities WHERE data_key = :dataKey AND isActive = 1 LIMIT 1")
+    suspend fun getByKey(dataKey: String): Utility?
+
 }
 
