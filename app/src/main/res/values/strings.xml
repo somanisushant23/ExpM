@@ -63,4 +63,13 @@
     <!-- Search options -->
     <string name="action_search">Search</string>
     <string name="search_hint">Search by title, amount, or notes</string>
+
+    <!-- Settings screen strings -->
+    <string name="date_range_filter">Date Range Filter</string>
+    <string name="date_range_description">Select a date range to filter transactions</string>
+    <string name="start_date">Start Date</string>
+    <string name="end_date">End Date</string>
+    <string name="select_date">Select</string>
+    <string name="save_date_range">Save Date Range</string>
+    <string name="not_set">Not set</string>
 </resources>

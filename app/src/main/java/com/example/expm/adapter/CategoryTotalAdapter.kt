@@ -34,7 +34,7 @@ class CategoryTotalAdapter : ListAdapter<CategoryTotal, CategoryTotalAdapter.Vie
 
     class DiffCallback : DiffUtil.ItemCallback<CategoryTotal>() {
         override fun areItemsTheSame(oldItem: CategoryTotal, newItem: CategoryTotal): Boolean =
-            oldItem.category == newItem.category
+            oldItem.category.equals(newItem.category, true)
         override fun areContentsTheSame(oldItem: CategoryTotal, newItem: CategoryTotal): Boolean =
             oldItem == newItem
     }

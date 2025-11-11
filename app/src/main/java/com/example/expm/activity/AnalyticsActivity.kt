@@ -53,8 +53,8 @@ class AnalyticsActivity : AppCompatActivity() {
 
         // Observe data
         viewModel.entriesForCurrentMonth.observe(this) { entries ->
-            val totalExpenses = entries.filter { it.type == "Expense" }.sumOf { it.amount }
-            val totalIncome = entries.filter { it.type == "Income" }.sumOf { it.amount }
+            val totalExpenses = entries.filter { it.type.equals("Expense", true) }.sumOf { it.amount }
+            val totalIncome = entries.filter { it.type.equals("Income", true) }.sumOf { it.amount }
             val netBalance = totalIncome - totalExpenses
 
             tvTotalExpenses.text = String.format(Locale.getDefault(), "Rs %.0f", totalExpenses)

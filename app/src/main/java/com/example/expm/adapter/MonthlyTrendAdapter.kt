@@ -36,7 +36,7 @@ class MonthlyTrendAdapter : ListAdapter<MonthlyData, MonthlyTrendAdapter.ViewHol
 
     class DiffCallback : DiffUtil.ItemCallback<MonthlyData>() {
         override fun areItemsTheSame(oldItem: MonthlyData, newItem: MonthlyData): Boolean =
-            oldItem.month == newItem.month
+            oldItem.month.equals(newItem.month, true)
         override fun areContentsTheSame(oldItem: MonthlyData, newItem: MonthlyData): Boolean =
             oldItem == newItem
     }
