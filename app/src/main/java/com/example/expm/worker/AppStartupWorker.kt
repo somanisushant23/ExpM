@@ -44,7 +44,7 @@ class AppStartupWorker(
 
         } catch (e: Exception) {
             Log.e(TAG, "Error in AppStartupWorker", e)
-            return WorkResult.retry()
+            return WorkResult.failure()
         }
     }
 

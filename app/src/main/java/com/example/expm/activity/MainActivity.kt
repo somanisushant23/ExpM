@@ -304,7 +304,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
                     WorkInfo.State.FAILED -> {
                         swipeRefresh.isRefreshing = false
-                        Toast.makeText(this, "Sync failed. Please try again.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Sync failed. Is server healthy?.", Toast.LENGTH_SHORT).show()
                     }
                     WorkInfo.State.RUNNING -> {
                         // Keep refreshing indicator visible

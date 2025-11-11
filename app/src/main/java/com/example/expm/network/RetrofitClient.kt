@@ -14,7 +14,7 @@ object RetrofitClient {
 
     private const val BASE_URL = "https://api.expensemanager.org/"
     //private const val BASE_URL = "http://192.168.1.12:8080/"
-    private const val TIMEOUT_SECONDS = 60L
+    private const val TIMEOUT_SECONDS = 30L
 
     // Logging interceptor for debugging
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
