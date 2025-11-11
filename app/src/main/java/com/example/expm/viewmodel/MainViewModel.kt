@@ -16,6 +16,7 @@ import java.util.Locale
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getInstance(application).entryDao()
+    private val utilityDao = AppDatabase.getInstance(application).utilityDao()
 
     // Prepare date helpers
     private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -31,6 +32,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // Search query
     private val _searchQuery = MutableLiveData<String>("")
+
+    // Start and end timestamps from Utility DB
+    private val startTimestampLiveData: LiveData<Long?> = utilityDao.getByKeyFlow("start_date")
+        .asLiveData()
+        .map { it?.data_value?.toLongOrNull() }
+
+    private val endTimestampLiveData: LiveData<Long?> = utilityDao.getByKeyFlow("end_date")
+        .asLiveData()
+        .map { it?.data_value?.toLongOrNull() }
+
+    // Expose formatted dates for UI
+    val startDate: LiveData<String?> = startTimestampLiveData.map { timestamp ->
+        timestamp?.let { AppUtils.formatTimestampToDate(it) }
+    }
+
+    val endDate: LiveData<String?> = endTimestampLiveData.map { timestamp ->
+        timestamp?.let { AppUtils.formatTimestampToDate(it) }
+    }
+
+    private fun <T, R> LiveData<T>.map(transform: (T) -> R): LiveData<R> {
+        val result = MediatorLiveData<R>()
+        result.addSource(this) { value ->
+            result.value = transform(value)
+        }
+        return result
+    }
 
     fun setFilterType(type: String) {
         _filterType.value = type
@@ -53,18 +80,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         var currentFilterType: String = "All"
         var currentSortOrder: String = "date_desc"
         var currentSearchQuery: String = ""
+        var currentStartTimestamp: Long? = null
+        var currentEndTimestamp: Long? = null
 
         fun update() {
             val entries = currentEntries ?: return
 
-            // Filter by current month and type
+            // Filter by timestamp range and type
             val filtered = entries.filter { entry ->
-                // First filter by current month
-                val isCurrentMonth = try {
-                    AppUtils.isTimestampInCurrentMonth(entry.created_on)
-                } catch (e: Exception) {
-                    Log.e("MainViewModel", "Error occurred: ", e)
-                    false
+                // First filter by timestamp range
+                val isInRange = if (currentStartTimestamp != null && currentEndTimestamp != null) {
+                    entry.created_on >= currentStartTimestamp!! && entry.created_on <= currentEndTimestamp!!
+                } else {
+                    // If timestamps are not set, fall back to current month
+                    try {
+                        AppUtils.isTimestampInCurrentMonth(entry.created_on)
+                    } catch (e: Exception) {
+                        Log.e("MainViewModel", "Error occurred: ", e)
+                        false
+                    }
                 }
 
                 // Then filter by type
@@ -85,7 +119,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     entry.notes.lowercase().contains(query)
                 }
 
-                isCurrentMonth && matchesType && matchesSearch
+                isInRange && matchesType && matchesSearch
             }
 
             // Sort the filtered list
@@ -117,6 +151,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         addSource(_searchQuery) { searchQuery ->
             currentSearchQuery = searchQuery
+            update()
+        }
+
+        addSource(startTimestampLiveData) { startTimestamp ->
+            currentStartTimestamp = startTimestamp
+            update()
+        }
+
+        addSource(endTimestampLiveData) { endTimestamp ->
+            currentEndTimestamp = endTimestamp
             update()
         }
     }

@@ -130,7 +130,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val tvEmpty = findViewById<TextView>(R.id.tv_empty)
         val tvTotalAmount = findViewById<TextView>(R.id.tv_total_amount)
+        val tvDateRange = findViewById<TextView>(R.id.tv_date_range)
         val chipGroup = findViewById<ChipGroup>(R.id.chip_group_filter)
+
+        // Observe start and end dates to display date range
+        viewModel.startDate.observe(this) { startDate ->
+            updateDateRangeDisplay(tvDateRange, startDate, viewModel.endDate.value)
+        }
+
+        viewModel.endDate.observe(this) { endDate ->
+            updateDateRangeDisplay(tvDateRange, viewModel.startDate.value, endDate)
+        }
 
         // Handle chip filter selection
         chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
@@ -267,9 +277,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 startActivity(intent)
             }
             R.id.nav_settings -> {
-                supportActionBar?.title = getString(R.string.nav_settings)
-                Toast.makeText(this, "Settings - Coming Soon!", Toast.LENGTH_SHORT).show()
-                // TODO: Navigate to Settings Activity
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
             }
             R.id.nav_about -> {
                 val intent = Intent(this, AboutActivity::class.java)
@@ -282,6 +291,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    /**
+     * Update the date range TextView with start and end dates
+     */
+    private fun updateDateRangeDisplay(tvDateRange: TextView, startDate: String?, endDate: String?) {
+        if (startDate != null && endDate != null) {
+            tvDateRange.text = "$startDate to $endDate"
+            tvDateRange.visibility = android.view.View.VISIBLE
+        } else {
+            tvDateRange.visibility = android.view.View.GONE
+        }
     }
 
     /**

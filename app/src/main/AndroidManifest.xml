@@ -46,6 +46,11 @@
             android:parentActivityName=".activity.MainActivity" />
 
         <activity
+            android:name=".activity.SettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".activity.MainActivity" />
+
+        <activity
             android:name=".activity.LoginActivity"
             android:exported="true" />
 
