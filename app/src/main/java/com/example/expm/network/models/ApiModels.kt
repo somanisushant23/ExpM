@@ -143,7 +143,9 @@ data class TransactionRequest(
     val category: String,
     val transactionType: String,
     val transactionDate: String,
-    val description: String? = null
+    val description: String? = null,
+    val createdOn: Long? = null,
+    val updatedOn: Long? = null
 )
 
 data class TransactionResponse(

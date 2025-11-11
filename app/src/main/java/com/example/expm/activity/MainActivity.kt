@@ -22,11 +22,16 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.example.expm.R
 import com.example.expm.adapter.EntryAdapter
 import com.example.expm.data.AppDatabase
 import com.example.expm.network.utils.TokenManager
 import com.example.expm.viewmodel.MainViewModel
+import com.example.expm.worker.AppStartupWorker
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
@@ -39,6 +44,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var adapter: EntryAdapter
     private lateinit var viewModel: MainViewModel
     private lateinit var drawerLayout: DrawerLayout
+    private lateinit var swipeRefresh: SwipeRefreshLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,6 +114,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapter
+
+        // Setup SwipeRefreshLayout
+        swipeRefresh = findViewById(R.id.swipe_refresh)
+        swipeRefresh.setOnRefreshListener {
+            triggerDataSync()
+        }
 
         // Obtain ViewModel and observe entries for current month
         viewModel = ViewModelProvider(
@@ -270,6 +282,42 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    /**
+     * Trigger data sync by starting AppStartupWorker
+     */
+    private fun triggerDataSync() {
+        val workRequest = OneTimeWorkRequestBuilder<AppStartupWorker>()
+            .build()
+
+        val workManager = WorkManager.getInstance(applicationContext)
+        workManager.enqueue(workRequest)
+
+        // Observe work status to stop refreshing indicator when done
+        workManager.getWorkInfoByIdLiveData(workRequest.id).observe(this) { workInfo ->
+            if (workInfo != null) {
+                when (workInfo.state) {
+                    WorkInfo.State.SUCCEEDED -> {
+                        swipeRefresh.isRefreshing = false
+                        Toast.makeText(this, "Data synced successfully", Toast.LENGTH_SHORT).show()
+                    }
+                    WorkInfo.State.FAILED -> {
+                        swipeRefresh.isRefreshing = false
+                        Toast.makeText(this, "Sync failed. Is server healthy?.", Toast.LENGTH_SHORT).show()
+                    }
+                    WorkInfo.State.RUNNING -> {
+                        // Keep refreshing indicator visible
+                    }
+                    WorkInfo.State.CANCELLED -> {
+                        swipeRefresh.isRefreshing = false
+                    }
+                    else -> {
+                        // ENQUEUED or BLOCKED states - keep refreshing
+                    }
+                }
+            }
+        }
     }
 
     /**

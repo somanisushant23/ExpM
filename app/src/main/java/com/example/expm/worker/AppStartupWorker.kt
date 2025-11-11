@@ -44,7 +44,7 @@ class AppStartupWorker(
 
         } catch (e: Exception) {
             Log.e(TAG, "Error in AppStartupWorker", e)
-            return WorkResult.retry()
+            return WorkResult.failure()
         }
     }
 
@@ -99,27 +99,83 @@ class AppStartupWorker(
 
                 if (transactions.isNotEmpty()) {
                     val entryDao = database.entryDao()
+                    val allLocalEntries = entryDao.getAll()
+                    var insertedCount = 0
+                    var updatedCount = 0
+                    var skippedCount = 0
 
-                    // Save each transaction as an Entry with remoteId
+                    // Save each transaction as an Entry with remoteId, handling conflicts
                     transactions.forEach { transaction ->
-                        val entry = com.example.expm.data.Entry(
-                            id = 0, // Auto-generate local ID
-                            title = transaction.title,
-                            amount = transaction.amount.toDouble(),
-                            type = transaction.transactionType.lowercase(Locale.getDefault()),
-                            category = transaction.category,
-                            created_on = transaction.createdOn,
-                            updated_on = transaction.updatedOn,
-                            notes = transaction.description ?: "",
-                            isPersisted = true,
-                            isDeleted = false,
-                            isUpdated = false,
-                            remoteId = transaction.id
-                        )
-                        entryDao.insert(entry)
+                        // Check if an entry with the same createdOn timestamp exists locally
+                        val existingEntry = allLocalEntries.find { it.created_on == transaction.createdOn }
+
+                        if (existingEntry != null) {
+                            // Entry with same createdOn exists - compare updatedOn timestamps
+                            when {
+                                transaction.updatedOn > existingEntry.updated_on -> {
+                                    // Server has more recent data, update local entry
+                                    val updatedEntry = existingEntry.copy(
+                                        title = transaction.title,
+                                        amount = transaction.amount.toDouble(),
+                                        type = transaction.transactionType.lowercase(Locale.getDefault()),
+                                        category = transaction.category,
+                                        updated_on = transaction.updatedOn,
+                                        notes = transaction.description ?: "",
+                                        isPersisted = true,
+                                        isUpdated = false,
+                                        remoteId = transaction.id
+                                    )
+                                    entryDao.update(updatedEntry)
+                                    updatedCount++
+                                    Log.d(TAG, "Updated local entry (createdOn: ${transaction.createdOn}) with server data (server updatedOn: ${transaction.updatedOn} > local: ${existingEntry.updated_on})")
+                                }
+                                transaction.updatedOn < existingEntry.updated_on -> {
+                                    // Local data is more recent, keep it and mark as updated to sync back
+                                    val needsRemoteIdUpdate = existingEntry.remoteId != transaction.id
+                                    if (!existingEntry.isUpdated || needsRemoteIdUpdate) {
+                                        entryDao.update(existingEntry.copy(
+                                            isUpdated = true,
+                                            remoteId = transaction.id // Ensure remoteId is set
+                                        ))
+                                        Log.d(TAG, "Local entry (createdOn: ${transaction.createdOn}) is more recent (local updatedOn: ${existingEntry.updated_on} > server: ${transaction.updatedOn}), marking for sync")
+                                    }
+                                    skippedCount++
+                                }
+                                else -> {
+                                    // Same timestamp, but ensure remoteId is set
+                                    if (existingEntry.remoteId != transaction.id) {
+                                        entryDao.update(existingEntry.copy(
+                                            remoteId = transaction.id,
+                                            isPersisted = true
+                                        ))
+                                        Log.d(TAG, "Updated remoteId for entry (createdOn: ${transaction.createdOn})")
+                                    }
+                                    skippedCount++
+                                    Log.d(TAG, "Entry (createdOn: ${transaction.createdOn}) has identical timestamp, skipping")
+                                }
+                            }
+                        } else {
+                            // New entry from server, insert it
+                            val entry = com.example.expm.data.Entry(
+                                id = 0, // Auto-generate local ID
+                                title = transaction.title,
+                                amount = transaction.amount.toDouble(),
+                                type = transaction.transactionType.lowercase(Locale.getDefault()),
+                                category = transaction.category,
+                                created_on = transaction.createdOn,
+                                updated_on = transaction.updatedOn,
+                                notes = transaction.description ?: "",
+                                isPersisted = true,
+                                isDeleted = false,
+                                isUpdated = false,
+                                remoteId = transaction.id
+                            )
+                            entryDao.insert(entry)
+                            insertedCount++
+                        }
                     }
 
-                    Log.i(TAG, "Saved ${transactions.size} transactions to local database")
+                    Log.i(TAG, "Sync complete - Inserted: $insertedCount, Updated: $updatedCount, Skipped: $skippedCount")
 
                     // Get the maximum updatedOn timestamp from the fetched transactions
                     val maxUpdatedTime = transactions.maxOfOrNull { it.updatedOn } ?: System.currentTimeMillis()
@@ -214,13 +270,24 @@ class AppStartupWorker(
                     category = entry.category,
                     transactionType = entry.type.uppercase(Locale.getDefault()),
                     transactionDate = formatDate(entry.created_on),
-                    description = if (entry.notes.isBlank()) null else entry.notes
+                    description = if (entry.notes.isBlank()) null else entry.notes,
+                    createdOn = entry.created_on
                 )
 
                 val updateResponse = apiService.updateTransaction(token, email, entry.remoteId, transactionRequest)
                 if (updateResponse.isSuccessful) {
-                    Log.i(TAG, "Successfully updated transaction with remoteId: ${entry.remoteId}")
-                    // Mark entry as no longer updated
+                    // Update local entry with current timestamp and mark as no longer updated
+                    val currentTime = System.currentTimeMillis()
+                    val syncedEntry = entry.copy(
+                        updated_on = currentTime,
+                        isUpdated = false
+                    )
+                    entryDao.update(syncedEntry)
+                    Log.i(TAG, "Successfully updated transaction with remoteId: ${entry.remoteId}, local updatedOn: $currentTime")
+                } else if (updateResponse.code() == 409) {
+                    // Conflict detected - server has a more recent version
+                    Log.w(TAG, "Conflict detected for transaction ${entry.remoteId}. Server has more recent data. Will be resolved in next fetch.")
+                    // Mark entry to be refreshed from server on next sync
                     entryDao.update(entry.copy(isUpdated = false))
                 } else {
                     Log.e(TAG, "Failed to update transaction ${entry.remoteId}: ${updateResponse.code()} - ${updateResponse.message()}")
@@ -256,7 +323,8 @@ class AppStartupWorker(
                 category = entry.category,
                 transactionType = entry.type.uppercase(Locale.getDefault()),
                 transactionDate = formatDate(entry.created_on),
-                description = if (entry.notes.isBlank()) null else entry.notes
+                description = if (entry.notes.isBlank()) null else entry.notes,
+                createdOn = entry.created_on
             )
         }
 
@@ -268,11 +336,19 @@ class AppStartupWorker(
                 Log.i(TAG, "Successfully posted ${transactionResponses.size} transactions")
 
                 nonPersistedEntries.forEachIndexed { index, entry ->
-                    val remoteId = transactionResponses[index].id
-                    entryDao.update(entry.copy(isPersisted = true, remoteId = remoteId))
+                    val serverTransaction = transactionResponses[index]
+                    // Update local entry with server data including timestamps
+                    val syncedEntry = entry.copy(
+                        isPersisted = true,
+                        remoteId = serverTransaction.id,
+                        created_on = serverTransaction.createdOn,
+                        updated_on = serverTransaction.updatedOn
+                    )
+                    entryDao.update(syncedEntry)
+                    Log.d(TAG, "Entry ${entry.id} synced with remoteId: ${serverTransaction.id}, createdOn: ${serverTransaction.createdOn}, updatedOn: ${serverTransaction.updatedOn}")
                 }
 
-                Log.i(TAG, "Marked ${nonPersistedEntries.size} entries as persisted with remote IDs")
+                Log.i(TAG, "Marked ${nonPersistedEntries.size} entries as persisted with remote IDs and server timestamps")
             } else {
                 Log.e(TAG, "Failed to post transactions: ${response.code()} - ${response.message()}")
                 throw Exception("Failed to post transactions")
