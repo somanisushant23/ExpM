@@ -43,7 +43,7 @@ class EntryAdapter(private val onItemClick: (Entry) -> Unit) : ListAdapter<Entry
             }
             tvCategory.text = entry.category
             tvDate.text = AppUtils.formatTimestampToDate(entry.created_on)
-            tvType.text = entry.type
+            tvType.text = entry.type.uppercase()
 
             // Set color based on type
             if (entry.type.equals("expense", ignoreCase = true)) {
@@ -57,7 +57,7 @@ class EntryAdapter(private val onItemClick: (Entry) -> Unit) : ListAdapter<Entry
     }
 
     class DiffCallback : DiffUtil.ItemCallback<Entry>() {
-        override fun areItemsTheSame(oldItem: Entry, newItem: Entry): Boolean = oldItem.id == newItem.id
+        override fun areItemsTheSame(oldItem: Entry, newItem: Entry): Boolean = oldItem.id.equals(newItem.id)
         override fun areContentsTheSame(oldItem: Entry, newItem: Entry): Boolean = oldItem == newItem
     }
 }

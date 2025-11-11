@@ -70,8 +70,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 // Then filter by type
                 val matchesType = when (currentFilterType) {
                     "All" -> true
-                    "Expense" -> entry.type == "Expense"
-                    "Income" -> entry.type == "Income"
+                    "Expense" -> entry.type.equals("Expense", true)
+                    "Income" -> entry.type.equals("Income", true)
                     else -> true
                 }
 

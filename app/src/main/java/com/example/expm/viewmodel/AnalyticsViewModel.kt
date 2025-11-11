@@ -24,7 +24,6 @@ data class MonthlyData(
 
 class AnalyticsViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getInstance(application).entryDao()
-    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private val cal = Calendar.getInstance()
     private val currentYear = cal.get(Calendar.YEAR)
     private val currentMonth = cal.get(Calendar.MONTH)
@@ -33,9 +32,8 @@ class AnalyticsViewModel(application: Application) : AndroidViewModel(applicatio
     val entriesForCurrentMonth: LiveData<List<Entry>> = dao.getAllFlow().map { list ->
         list.filter { entry ->
             try {
-                val d = sdf.parse(entry.created_on.toString()) ?: return@filter false
                 val c = Calendar.getInstance()
-                c.time = d
+                c.timeInMillis = entry.created_on
                 val y = c.get(Calendar.YEAR)
                 val m = c.get(Calendar.MONTH)
                 y == currentYear && m == currentMonth
@@ -49,12 +47,11 @@ class AnalyticsViewModel(application: Application) : AndroidViewModel(applicatio
     val expenseByCategoryForCurrentMonth: LiveData<List<CategoryTotal>> = dao.getAllFlow().map { list ->
         list.filter { entry ->
             try {
-                val d = sdf.parse(entry.created_on.toString()) ?: return@filter false
                 val c = Calendar.getInstance()
-                c.time = d
+                c.timeInMillis = entry.created_on
                 val y = c.get(Calendar.YEAR)
                 val m = c.get(Calendar.MONTH)
-                entry.type == "Expense" && y == currentYear && m == currentMonth
+                entry.type.equals("Expense", true) && y == currentYear && m == currentMonth
             } catch (_: Exception) {
                 false
             }
@@ -81,14 +78,13 @@ class AnalyticsViewModel(application: Application) : AndroidViewModel(applicatio
         // Group entries by month
         list.forEach { entry ->
             try {
-                val d = sdf.parse(entry.created_on.toString()) ?: return@forEach
                 val c = Calendar.getInstance()
-                c.time = d
+                c.timeInMillis = entry.created_on
                 val monthKey = monthFormat.format(c.time)
 
                 if (monthKey in monthlyMap) {
                     val current = monthlyMap[monthKey]!!
-                    if (entry.type == "Expense") {
+                    if (entry.type.equals("Expense", true)) {
                         monthlyMap[monthKey] = Pair(current.first + entry.amount, current.second)
                     } else {
                         monthlyMap[monthKey] = Pair(current.first, current.second + entry.amount)

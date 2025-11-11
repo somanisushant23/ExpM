@@ -174,8 +174,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     tvTotalAmount.text = spannable
                 }
                 else -> {
-                    val totalExpenses = filtered.filter { it.type == "Expense" }.sumOf { it.amount }
-                    val totalIncome = filtered.filter { it.type == "Income" }.sumOf { it.amount }
+                    val totalExpenses = filtered.filter { it.type.equals("Expense", true) }.sumOf { it.amount }
+                    val totalIncome = filtered.filter { it.type.equals("Income", true) }.sumOf { it.amount }
                     val text = String.format(java.util.Locale.getDefault(), "Expenses: Rs %.0f | Income: Rs %.0f", totalExpenses, totalIncome)
                     val spannable = SpannableString(text)
 
