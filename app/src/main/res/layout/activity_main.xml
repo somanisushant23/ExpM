@@ -53,7 +53,7 @@
                         android:layout_height="wrap_content"
                         android:text=""
                         android:textSize="12sp"
-                        android:textColor="@android:color/darker_gray"
+                        android:textColor="@android:color/holo_blue_dark"
                         android:visibility="gone" />
 
                     <TextView
