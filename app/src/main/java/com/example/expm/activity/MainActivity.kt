@@ -329,6 +329,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val tvEmpty = findViewById<TextView>(R.id.tv_empty)
         val tvTotalAmount = findViewById<TextView>(R.id.tv_total_amount)
         val tvDateRange = findViewById<TextView>(R.id.tv_date_range)
+        val tvItemCount = findViewById<TextView>(R.id.tv_item_count)
         val chipGroup = findViewById<ChipGroup>(R.id.chip_group_filter)
 
         // Observe start and end dates to display date range
@@ -358,6 +359,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             adapter.submitList(filtered)
 
             tvEmpty.visibility = if (filtered.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+
+            // Update item count
+            val itemCount = filtered.size
+            tvItemCount.text = if (itemCount == 1) "1 item" else "$itemCount items"
 
             // Calculate and display total amount based on current filter
             val currentFilter = when (chipGroup.checkedChipId) {

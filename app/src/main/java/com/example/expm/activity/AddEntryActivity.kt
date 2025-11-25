@@ -22,6 +22,7 @@ import java.util.Locale
 class AddEntryActivity : AppCompatActivity() {
     private lateinit var viewModel: AddEntryViewModel
     private var currentEntry: Entry? = null
+    private var skipCategoryReset = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,11 +91,16 @@ class AddEntryActivity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 if (position == 1) { // Income
                     spinnerCategory.adapter = incomeAdapter
-                    spinnerCategory.setSelection(0)
+                    if (!skipCategoryReset) {
+                        spinnerCategory.setSelection(0)
+                    }
                 } else { // Expense
                     spinnerCategory.adapter = expenseAdapter
-                    spinnerCategory.setSelection(0)
+                    if (!skipCategoryReset) {
+                        spinnerCategory.setSelection(0)
+                    }
                 }
+                skipCategoryReset = false
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -153,9 +159,11 @@ class AddEntryActivity : AppCompatActivity() {
                 }
                 // set type
                 val typePos = if (entry.type.equals("Income", ignoreCase = true)) 1 else 0
+                skipCategoryReset = true
                 spinnerType.setSelection(typePos)
                 // ensure category is selected after adapter is set by onItemSelectedListener
-                spinnerCategory.post {
+                // Use postDelayed to give the adapter time to be set
+                spinnerCategory.postDelayed({
                     val adapter = spinnerCategory.adapter
                     if (adapter != null) {
                         for (i in 0 until adapter.count) {
@@ -165,7 +173,7 @@ class AddEntryActivity : AppCompatActivity() {
                             }
                         }
                     }
-                }
+                }, 100) // 100ms delay to ensure adapter is set
             }
 
             btnSave.setOnClickListener {

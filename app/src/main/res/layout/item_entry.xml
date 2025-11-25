@@ -63,6 +63,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/item_date_placeholder"
                 android:layout_marginStart="16dp"
+                android:textColor="@color/purple_200"
                 android:textSize="12sp"
                 android:alpha="0.8" />
         </LinearLayout>
