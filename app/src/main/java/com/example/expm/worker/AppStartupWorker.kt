@@ -116,7 +116,7 @@ class AppStartupWorker(
                                     // Server has more recent data, update local entry
                                     val updatedEntry = existingEntry.copy(
                                         title = transaction.title,
-                                        amount = transaction.amount.toDouble(),
+                                        amount = transaction.amount,
                                         type = transaction.transactionType.lowercase(Locale.getDefault()),
                                         category = transaction.category,
                                         updated_on = transaction.updatedOn,
@@ -159,7 +159,7 @@ class AppStartupWorker(
                             val entry = com.example.expm.data.Entry(
                                 id = 0, // Auto-generate local ID
                                 title = transaction.title,
-                                amount = transaction.amount.toDouble(),
+                                amount = transaction.amount,
                                 type = transaction.transactionType.lowercase(Locale.getDefault()),
                                 category = transaction.category,
                                 created_on = transaction.createdOn,
@@ -168,7 +168,8 @@ class AppStartupWorker(
                                 isPersisted = true,
                                 isDeleted = false,
                                 isUpdated = false,
-                                remoteId = transaction.id
+                                remoteId = transaction.id,
+                                transactionDateTimestamp = transaction.transactionDateTimestamp
                             )
                             entryDao.insert(entry)
                             insertedCount++

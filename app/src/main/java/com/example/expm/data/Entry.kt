@@ -13,7 +13,7 @@ import java.util.UUID
 data class Entry(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val title: String,
-    val amount: Double,
+    val amount: Int,
     val type: String,
     val category: String,
     val transactionDateTimestamp: Long,

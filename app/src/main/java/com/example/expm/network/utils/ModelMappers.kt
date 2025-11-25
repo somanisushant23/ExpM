@@ -32,7 +32,8 @@ fun EntryData.toEntry(): Entry {
         updated_on = this.updatedOn,
         notes = this.notes,
         isPersisted = this.isPersisted,
-        remoteId = this.id
+        remoteId = this.id,
+        transactionDateTimestamp = this.transactionDateTimestamp
     )
 }
 

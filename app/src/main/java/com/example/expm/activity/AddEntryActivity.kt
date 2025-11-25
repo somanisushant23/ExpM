@@ -2,7 +2,6 @@ package com.example.expm.activity
 
 import android.app.DatePickerDialog
 import android.os.Bundle
-import android.os.SystemClock
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -183,7 +182,7 @@ class AddEntryActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
 
-                val amount = try { amountStr.toDouble() } catch (_: NumberFormatException) {
+                val amount = try { amountStr.toInt() } catch (_: NumberFormatException) {
                     Toast.makeText(this, "Invalid amount", Toast.LENGTH_SHORT).show(); return@setOnClickListener }
 
                 val updated = currentEntry?.copy(
@@ -222,14 +221,15 @@ class AddEntryActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
 
-                val amount = try { amountStr.toDouble() } catch (_: NumberFormatException) { Toast.makeText(this, "Invalid amount", Toast.LENGTH_SHORT).show(); return@setOnClickListener }
-
+                val amount = try { amountStr.toInt() } catch (_: NumberFormatException) { Toast.makeText(this, "Invalid amount", Toast.LENGTH_SHORT).show(); return@setOnClickListener }
+                val currentTime = System.currentTimeMillis()
                 val entry = Entry(
                     title = title,
                     amount = amount,
                     type = type,
                     category = category,
-                    created_on = SystemClock.currentThreadTimeMillis(),
+                    created_on = currentTime,
+                    updated_on = currentTime,
                     transactionDateTimestamp = AppUtils.dateToTimestamp2(date),
                     notes = notes,
                     remoteId = 0L

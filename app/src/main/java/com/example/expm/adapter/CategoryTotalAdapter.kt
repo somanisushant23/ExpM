@@ -28,7 +28,7 @@ class CategoryTotalAdapter : ListAdapter<CategoryTotal, CategoryTotalAdapter.Vie
 
         fun bind(categoryTotal: CategoryTotal) {
             tvCategoryName.text = categoryTotal.category
-            tvCategoryAmount.text = String.format(Locale.getDefault(), "Rs %.0f", categoryTotal.total)
+            tvCategoryAmount.text = String.format(Locale.getDefault(), "Rs %d", categoryTotal.total)
         }
     }
 

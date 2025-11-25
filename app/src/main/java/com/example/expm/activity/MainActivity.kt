@@ -171,14 +171,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             when (currentFilter) {
                 "Expense" -> {
                     val totalExpenses = filtered.sumOf { it.amount }
-                    val text = String.format(java.util.Locale.getDefault(), "Total Expenses: Rs %.0f", totalExpenses)
+                    val text = String.format(java.util.Locale.getDefault(), "Total Expenses: Rs %d", totalExpenses)
                     val spannable = SpannableString(text)
                     spannable.setSpan(ForegroundColorSpan(Color.parseColor("#D32F2F")), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     tvTotalAmount.text = spannable
                 }
                 "Income" -> {
                     val totalIncome = filtered.sumOf { it.amount }
-                    val text = String.format(java.util.Locale.getDefault(), "Total Income: Rs %.0f", totalIncome)
+                    val text = String.format(java.util.Locale.getDefault(), "Total Income: Rs %d", totalIncome)
                     val spannable = SpannableString(text)
                     spannable.setSpan(ForegroundColorSpan(Color.parseColor("#388E3C")), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     tvTotalAmount.text = spannable
@@ -186,7 +186,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 else -> {
                     val totalExpenses = filtered.filter { it.type.equals("Expense", true) }.sumOf { it.amount }
                     val totalIncome = filtered.filter { it.type.equals("Income", true) }.sumOf { it.amount }
-                    val text = String.format(java.util.Locale.getDefault(), "Expenses: Rs %.0f | Income: Rs %.0f", totalExpenses, totalIncome)
+                    val text = String.format(java.util.Locale.getDefault(), "Expenses: Rs %d | Income: Rs %d", totalExpenses, totalIncome)
                     val spannable = SpannableString(text)
 
                     // Color "Expenses: Rs X" in red
