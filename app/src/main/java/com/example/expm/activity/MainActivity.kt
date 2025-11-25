@@ -45,166 +45,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var viewModel: MainViewModel
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var swipeRefresh: SwipeRefreshLayout
+    private lateinit var tokenManager: TokenManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        tokenManager = TokenManager.getInstance(this)
+
         setContentView(R.layout.activity_main)
-
-        // Setup Toolbar
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.title = getString(R.string.nav_transactions)
-
-        // Setup Navigation Drawer
-        drawerLayout = findViewById(R.id.drawer_layout)
-        val navigationView = findViewById<NavigationView>(R.id.nav_view)
-        navigationView.setNavigationItemSelectedListener(this)
-
-        // Find header's version TextView (we'll update it when drawer opens)
-        val headerView = navigationView.getHeaderView(0)
-        val tvVersion = headerView.findViewById<TextView>(R.id.tv_version)
-
-        val toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
-        )
-        drawerLayout.addDrawerListener(toggle)
-
-        // Update version when drawer opens (keeps behavior consistent)
-        drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
-            override fun onDrawerSlide(drawerView: android.view.View, slideOffset: Float) {}
-            override fun onDrawerStateChanged(newState: Int) {}
-            override fun onDrawerClosed(drawerView: android.view.View) {}
-            override fun onDrawerOpened(drawerView: android.view.View) {
-                // Use BuildConfig which reflects versionName from build.gradle at build time
-
-            }
-        })
-
-        toggle.syncState()
-
-        // Set default selection
-        navigationView.setCheckedItem(R.id.nav_transactions)
-
-        // Handle back button for drawer
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                } else {
-                    isEnabled = false
-                    onBackPressedDispatcher.onBackPressed()
-                }
-            }
-        })
-
-        val fab = findViewById<FloatingActionButton>(R.id.fab_add)
-        fab.setOnClickListener {
-            startActivity(Intent(this, AddEntryActivity::class.java))
-        }
-
-        // RecyclerView setup with item click -> open AddEntryActivity in edit mode
-        val recycler = findViewById<RecyclerView>(R.id.recycler_entries)
-        adapter = EntryAdapter { entry ->
-            val intent = Intent(this, AddEntryActivity::class.java).apply {
-                putExtra("entry_id", entry.id)
-            }
-            startActivity(intent)
-        }
-        recycler.layoutManager = LinearLayoutManager(this)
-        recycler.adapter = adapter
-
-        // Setup SwipeRefreshLayout
-        swipeRefresh = findViewById(R.id.swipe_refresh)
-        swipeRefresh.setOnRefreshListener {
-            triggerDataSync()
-        }
-
-        // Obtain ViewModel and observe entries for current month
-        viewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-        ).get(MainViewModel::class.java)
-
-
-        val tvEmpty = findViewById<TextView>(R.id.tv_empty)
-        val tvTotalAmount = findViewById<TextView>(R.id.tv_total_amount)
-        val tvDateRange = findViewById<TextView>(R.id.tv_date_range)
-        val chipGroup = findViewById<ChipGroup>(R.id.chip_group_filter)
-
-        // Observe start and end dates to display date range
-        viewModel.startDate.observe(this) { startDate ->
-            updateDateRangeDisplay(tvDateRange, startDate, viewModel.endDate.value)
-        }
-
-        viewModel.endDate.observe(this) { endDate ->
-            updateDateRangeDisplay(tvDateRange, viewModel.startDate.value, endDate)
-        }
-
-        // Handle chip filter selection
-        chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
-            if (checkedIds.isEmpty()) {
-                // If no chip is selected, default to "All"
-                viewModel.setFilterType("All")
-            } else {
-                when (checkedIds[0]) {
-                    R.id.chip_all -> viewModel.setFilterType("All")
-                    R.id.chip_expenses -> viewModel.setFilterType("Expense")
-                    R.id.chip_income -> viewModel.setFilterType("Income")
-                }
-            }
-        }
-
-        viewModel.entriesForCurrentMonth.observe(this) { filtered ->
-            adapter.submitList(filtered)
-
-            tvEmpty.visibility = if (filtered.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
-
-            // Calculate and display total amount based on current filter
-            val currentFilter = when (chipGroup.checkedChipId) {
-                R.id.chip_expenses -> "Expense"
-                R.id.chip_income -> "Income"
-                else -> "All"
-            }
-
-            when (currentFilter) {
-                "Expense" -> {
-                    val totalExpenses = filtered.sumOf { it.amount }
-                    val text = String.format(java.util.Locale.getDefault(), "Total Expenses: Rs %d", totalExpenses)
-                    val spannable = SpannableString(text)
-                    spannable.setSpan(ForegroundColorSpan(Color.parseColor("#D32F2F")), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    tvTotalAmount.text = spannable
-                }
-                "Income" -> {
-                    val totalIncome = filtered.sumOf { it.amount }
-                    val text = String.format(java.util.Locale.getDefault(), "Total Income: Rs %d", totalIncome)
-                    val spannable = SpannableString(text)
-                    spannable.setSpan(ForegroundColorSpan(Color.parseColor("#388E3C")), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    tvTotalAmount.text = spannable
-                }
-                else -> {
-                    val totalExpenses = filtered.filter { it.type.equals("Expense", true) }.sumOf { it.amount }
-                    val totalIncome = filtered.filter { it.type.equals("Income", true) }.sumOf { it.amount }
-                    val text = String.format(java.util.Locale.getDefault(), "Expenses: Rs %d | Income: Rs %d", totalExpenses, totalIncome)
-                    val spannable = SpannableString(text)
-
-                    // Color "Expenses: Rs X" in red
-                    val expensesEnd = text.indexOf(" |")
-                    if (expensesEnd != -1) {
-                        spannable.setSpan(ForegroundColorSpan(Color.parseColor("#D32F2F")), 0, expensesEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    }
-
-                    // Color "Income: Rs X" in green
-                    val incomeStart = text.indexOf("Income:")
-                    if (incomeStart != -1) {
-                        spannable.setSpan(ForegroundColorSpan(Color.parseColor("#388E3C")), incomeStart, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    }
-
-                    tvTotalAmount.text = spannable
-                }
-            }
-        }
+        setupUI()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -389,6 +238,169 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             } catch (e: Exception) {
                 // Handle error
                 Toast.makeText(this@MainActivity, "Error during logout: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    /**
+     * Setup UI components
+     */
+    private fun setupUI() {
+        // This contains all the UI setup code from onCreate
+        // Setup Toolbar
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = getString(R.string.nav_transactions)
+
+        // Setup Navigation Drawer
+        drawerLayout = findViewById(R.id.drawer_layout)
+        val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        navigationView.setNavigationItemSelectedListener(this)
+
+        // Find header's version TextView (we'll update it when drawer opens)
+        val headerView = navigationView.getHeaderView(0)
+        val tvVersion = headerView.findViewById<TextView>(R.id.tv_version)
+
+        val toggle = ActionBarDrawerToggle(
+            this, drawerLayout, toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+
+        // Update version when drawer opens (keeps behavior consistent)
+        drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerSlide(drawerView: android.view.View, slideOffset: Float) {}
+            override fun onDrawerStateChanged(newState: Int) {}
+            override fun onDrawerClosed(drawerView: android.view.View) {}
+            override fun onDrawerOpened(drawerView: android.view.View) {
+                // Use BuildConfig which reflects versionName from build.gradle at build time
+
+            }
+        })
+
+        toggle.syncState()
+
+        // Set default selection
+        navigationView.setCheckedItem(R.id.nav_transactions)
+
+        // Handle back button for drawer
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
+
+
+        val fab = findViewById<FloatingActionButton>(R.id.fab_add)
+        fab.setOnClickListener {
+            startActivity(Intent(this, AddEntryActivity::class.java))
+        }
+
+        // RecyclerView setup with item click -> open AddEntryActivity in edit mode
+        val recycler = findViewById<RecyclerView>(R.id.recycler_entries)
+        adapter = EntryAdapter { entry ->
+            val intent = Intent(this, AddEntryActivity::class.java).apply {
+                putExtra("entry_id", entry.id)
+            }
+            startActivity(intent)
+        }
+        recycler.layoutManager = LinearLayoutManager(this)
+        recycler.adapter = adapter
+
+        // Setup SwipeRefreshLayout
+        swipeRefresh = findViewById(R.id.swipe_refresh)
+        swipeRefresh.setOnRefreshListener {
+            triggerDataSync()
+        }
+
+        // Obtain ViewModel and observe entries for current month
+        viewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+        ).get(MainViewModel::class.java)
+
+
+        val tvEmpty = findViewById<TextView>(R.id.tv_empty)
+        val tvTotalAmount = findViewById<TextView>(R.id.tv_total_amount)
+        val tvDateRange = findViewById<TextView>(R.id.tv_date_range)
+        val chipGroup = findViewById<ChipGroup>(R.id.chip_group_filter)
+
+        // Observe start and end dates to display date range
+        viewModel.startDate.observe(this) { startDate ->
+            updateDateRangeDisplay(tvDateRange, startDate, viewModel.endDate.value)
+        }
+
+        viewModel.endDate.observe(this) { endDate ->
+            updateDateRangeDisplay(tvDateRange, viewModel.startDate.value, endDate)
+        }
+
+        // Handle chip filter selection
+        chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
+            if (checkedIds.isEmpty()) {
+                // If no chip is selected, default to "All"
+                viewModel.setFilterType("All")
+            } else {
+                when (checkedIds[0]) {
+                    R.id.chip_all -> viewModel.setFilterType("All")
+                    R.id.chip_expenses -> viewModel.setFilterType("Expense")
+                    R.id.chip_income -> viewModel.setFilterType("Income")
+                }
+            }
+        }
+
+        viewModel.entriesForCurrentMonth.observe(this) { filtered ->
+            adapter.submitList(filtered)
+
+            tvEmpty.visibility = if (filtered.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+
+            // Calculate and display total amount based on current filter
+            val currentFilter = when (chipGroup.checkedChipId) {
+                R.id.chip_expenses -> "Expense"
+                R.id.chip_income -> "Income"
+                else -> "All"
+            }
+
+            when (currentFilter) {
+                "Expense" -> {
+                    val totalExpenses = filtered.sumOf { it.amount }
+                    val text = String.format(java.util.Locale.getDefault(), "Total Expenses: Rs %d", totalExpenses)
+                    val spannable = SpannableString(text)
+                    spannable.setSpan(ForegroundColorSpan(Color.parseColor("#D32F2F")), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    tvTotalAmount.text = spannable
+                }
+                "Income" -> {
+                    val totalIncome = filtered.sumOf { it.amount }
+                    val text = String.format(java.util.Locale.getDefault(), "Total Income: Rs %d", totalIncome)
+                    val spannable = SpannableString(text)
+                    spannable.setSpan(ForegroundColorSpan(Color.parseColor("#388E3C")), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    tvTotalAmount.text = spannable
+                }
+                else -> {
+                    val totalExpenses = filtered.filter { it.type.equals("Expense", true) }.sumOf { it.amount }
+                    val totalIncome = filtered.filter { it.type.equals("Income", true) }.sumOf { it.amount }
+                    val text = String.format(java.util.Locale.getDefault(), "Expenses: Rs %d | Income: Rs %d", totalExpenses, totalIncome)
+                    val spannable = SpannableString(text)
+
+                    // Color "Expenses: Rs X" in red
+                    val expensesEnd = text.indexOf(" |")
+                    if (expensesEnd != -1) {
+                        spannable.setSpan(ForegroundColorSpan(Color.parseColor("#D32F2F")), 0, expensesEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
+
+                    // Color "Income: Rs X" in green
+                    val incomeStart = text.indexOf("Income:")
+                    if (incomeStart != -1) {
+                        spannable.setSpan(ForegroundColorSpan(Color.parseColor("#388E3C")), incomeStart, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
+
+                    tvTotalAmount.text = spannable
+                }
             }
         }
     }

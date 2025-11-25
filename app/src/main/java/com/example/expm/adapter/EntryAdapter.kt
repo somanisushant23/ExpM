@@ -30,7 +30,7 @@ class EntryAdapter(private val onItemClick: (Entry) -> Unit) : ListAdapter<Entry
         private val tvAmount: TextView = itemView.findViewById(R.id.tv_amount)
         private val tvCategory: TextView = itemView.findViewById(R.id.tv_category)
         private val tvDate: TextView = itemView.findViewById(R.id.tv_date)
-        private val tvType: TextView = itemView.findViewById(R.id.tv_type)
+        private val viewTypeIndicator: View = itemView.findViewById(R.id.view_type_indicator)
 
         fun bind(entry: Entry) {
             tvTitle.text = entry.title
@@ -43,13 +43,12 @@ class EntryAdapter(private val onItemClick: (Entry) -> Unit) : ListAdapter<Entry
             }
             tvCategory.text = entry.category
             tvDate.text = AppUtils.formatTimestampToDate(entry.created_on)
-            tvType.text = AppUtils.capitalizeFirstLetter(entry.type)
 
             // Set color based on type
             if (entry.type.equals("expense", ignoreCase = true)) {
-                tvType.setTextColor(Color.RED)
+                viewTypeIndicator.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.RED)
             } else {
-                tvType.setTextColor(Color.parseColor("#388E3C"))
+                viewTypeIndicator.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#388E3C"))
             }
 
             itemView.setOnClickListener { onItemClick(entry) }
