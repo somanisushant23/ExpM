@@ -29,8 +29,8 @@ class MonthlyTrendAdapter : ListAdapter<MonthlyData, MonthlyTrendAdapter.ViewHol
 
         fun bind(monthlyData: MonthlyData) {
             tvMonth.text = monthlyData.month
-            tvMonthExpense.text = String.format(Locale.getDefault(), "Rs %.0f", monthlyData.totalExpense)
-            tvMonthIncome.text = String.format(Locale.getDefault(), "Rs %.0f", monthlyData.totalIncome)
+            tvMonthExpense.text = String.format(Locale.getDefault(), "Rs %d", monthlyData.totalExpense)
+            tvMonthIncome.text = String.format(Locale.getDefault(), "Rs %d", monthlyData.totalIncome)
         }
     }
 

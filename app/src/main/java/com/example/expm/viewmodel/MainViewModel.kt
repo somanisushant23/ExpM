@@ -18,12 +18,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getInstance(application).entryDao()
     private val utilityDao = AppDatabase.getInstance(application).utilityDao()
 
-    // Prepare date helpers
-    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    private val cal = Calendar.getInstance()
-    private val currentYear = cal.get(Calendar.YEAR)
-    private val currentMonth = cal.get(Calendar.MONTH)
-
     // Filter type: "All", "Expense", or "Income"
     private val _filterType = MutableLiveData<String>("All")
 

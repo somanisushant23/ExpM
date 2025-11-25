@@ -13,13 +13,13 @@ import java.util.Locale
 
 data class CategoryTotal(
     val category: String,
-    val total: Double
+    val total: Int
 )
 
 data class MonthlyData(
     val month: String,
-    val totalExpense: Double,
-    val totalIncome: Double
+    val totalExpense: Int,
+    val totalIncome: Int
 )
 
 class AnalyticsViewModel(application: Application) : AndroidViewModel(application) {
@@ -63,7 +63,7 @@ class AnalyticsViewModel(application: Application) : AndroidViewModel(applicatio
 
     // Get monthly trends for the last 6 months
     val monthlyTrends: LiveData<List<MonthlyData>> = dao.getAllFlow().map { list ->
-        val monthlyMap = mutableMapOf<String, Pair<Double, Double>>() // month -> (expense, income)
+        val monthlyMap = mutableMapOf<String, Pair<Int, Int>>() // month -> (expense, income)
         val monthFormat = SimpleDateFormat("MMM yyyy", Locale.getDefault())
 
         // Get last 6 months
@@ -72,7 +72,7 @@ class AnalyticsViewModel(application: Application) : AndroidViewModel(applicatio
             val c = Calendar.getInstance()
             c.add(Calendar.MONTH, -i)
             months.add(monthFormat.format(c.time))
-            monthlyMap[monthFormat.format(c.time)] = Pair(0.0, 0.0)
+            monthlyMap[monthFormat.format(c.time)] = Pair(0, 0)
         }
 
         // Group entries by month

@@ -86,8 +86,8 @@ class AppStartupWorker(
 
         // Get updatedTime from utility, default to 0 if not exists
         val updatedTimeUtility = utilityDao.getByKey("updatedTime")
-        val updatedTime = updatedTimeUtility?.data_value?.toLongOrNull() ?: 0L
-
+        var updatedTime = updatedTimeUtility?.data_value?.toLongOrNull() ?: 0L
+        updatedTime += 1
         Log.i(TAG, "Fetching transactions updated after: $updatedTime")
 
         try {
@@ -96,7 +96,7 @@ class AppStartupWorker(
             if (response.isSuccessful && response.body() != null) {
                 val transactions = response.body()!!
                 Log.i(TAG, "Successfully fetched ${transactions.size} transactions from server")
-
+                Log.i(TAG, "Transactions: $transactions")
                 if (transactions.isNotEmpty()) {
                     val entryDao = database.entryDao()
                     val allLocalEntries = entryDao.getAll()
@@ -116,7 +116,7 @@ class AppStartupWorker(
                                     // Server has more recent data, update local entry
                                     val updatedEntry = existingEntry.copy(
                                         title = transaction.title,
-                                        amount = transaction.amount.toDouble(),
+                                        amount = transaction.amount,
                                         type = transaction.transactionType.lowercase(Locale.getDefault()),
                                         category = transaction.category,
                                         updated_on = transaction.updatedOn,
@@ -159,7 +159,7 @@ class AppStartupWorker(
                             val entry = com.example.expm.data.Entry(
                                 id = 0, // Auto-generate local ID
                                 title = transaction.title,
-                                amount = transaction.amount.toDouble(),
+                                amount = transaction.amount,
                                 type = transaction.transactionType.lowercase(Locale.getDefault()),
                                 category = transaction.category,
                                 created_on = transaction.createdOn,
@@ -168,7 +168,8 @@ class AppStartupWorker(
                                 isPersisted = true,
                                 isDeleted = false,
                                 isUpdated = false,
-                                remoteId = transaction.id
+                                remoteId = transaction.id,
+                                transactionDateTimestamp = transaction.transactionDateTimestamp
                             )
                             entryDao.insert(entry)
                             insertedCount++
@@ -271,7 +272,8 @@ class AppStartupWorker(
                     transactionType = entry.type.uppercase(Locale.getDefault()),
                     transactionDate = formatDate(entry.created_on),
                     description = if (entry.notes.isBlank()) null else entry.notes,
-                    createdOn = entry.created_on
+                    createdOn = entry.created_on,
+                    clientId = entry.clientId
                 )
 
                 val updateResponse = apiService.updateTransaction(token, email, entry.remoteId, transactionRequest)
@@ -324,7 +326,8 @@ class AppStartupWorker(
                 transactionType = entry.type.uppercase(Locale.getDefault()),
                 transactionDate = formatDate(entry.created_on),
                 description = if (entry.notes.isBlank()) null else entry.notes,
-                createdOn = entry.created_on
+                createdOn = entry.created_on,
+                clientId = entry.clientId
             )
         }
 

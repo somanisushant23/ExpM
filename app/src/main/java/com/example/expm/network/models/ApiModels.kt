@@ -45,7 +45,7 @@ data class UpdateProfileRequest(
 
 data class EntryRequest(
     val title: String,
-    val amount: Double,
+    val amount: Int,
     val type: String,
     val category: String,
     @SerializedName("created_on")
@@ -64,7 +64,7 @@ data class EntryResponse(
 data class EntryData(
     val id: Long,
     val title: String,
-    val amount: Double,
+    val amount: Int,
     val type: String,
     val category: String,
     @SerializedName("created_on")
@@ -73,7 +73,8 @@ data class EntryData(
     val updatedOn: Long,
     val notes: String,
     @SerializedName("is_persisted")
-    val isPersisted: Boolean = true
+    val isPersisted: Boolean = true,
+    val transactionDateTimestamp: Long
 )
 
 data class EntriesResponse(
@@ -145,7 +146,8 @@ data class TransactionRequest(
     val transactionDate: String,
     val description: String? = null,
     val createdOn: Long? = null,
-    val updatedOn: Long? = null
+    val updatedOn: Long? = null,
+    val clientId: String? = null
 )
 
 data class TransactionResponse(
@@ -157,7 +159,9 @@ data class TransactionResponse(
     val amount: Int,
     val transactionDate: String,
     val createdOn: Long,
-    val updatedOn: Long
+    val updatedOn: Long,
+    val clientId: String? = null,
+    val transactionDateTimestamp: Long
 )
 
 // ==================== Generic Models ====================

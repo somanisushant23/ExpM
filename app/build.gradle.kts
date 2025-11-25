@@ -16,8 +16,8 @@ android {
         applicationId = "com.example.expm"
         minSdk = 29
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
         resValue("string", "tv_version", "$versionName")
 

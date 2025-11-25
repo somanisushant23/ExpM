@@ -57,9 +57,9 @@ class AnalyticsActivity : AppCompatActivity() {
             val totalIncome = entries.filter { it.type.equals("Income", true) }.sumOf { it.amount }
             val netBalance = totalIncome - totalExpenses
 
-            tvTotalExpenses.text = String.format(Locale.getDefault(), "Rs %.0f", totalExpenses)
-            tvTotalIncome.text = String.format(Locale.getDefault(), "Rs %.0f", totalIncome)
-            tvNetBalance.text = String.format(Locale.getDefault(), "Rs %.0f", netBalance)
+            tvTotalExpenses.text = String.format(Locale.getDefault(), "Rs %d", totalExpenses)
+            tvTotalIncome.text = String.format(Locale.getDefault(), "Rs %d", totalIncome)
+            tvNetBalance.text = String.format(Locale.getDefault(), "Rs %d", netBalance)
 
             // Color code net balance
             if (netBalance >= 0) {
