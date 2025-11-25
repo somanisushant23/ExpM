@@ -86,8 +86,8 @@ class AppStartupWorker(
 
         // Get updatedTime from utility, default to 0 if not exists
         val updatedTimeUtility = utilityDao.getByKey("updatedTime")
-        val updatedTime = updatedTimeUtility?.data_value?.toLongOrNull() ?: 0L
-
+        var updatedTime = updatedTimeUtility?.data_value?.toLongOrNull() ?: 0L
+        updatedTime += 1
         Log.i(TAG, "Fetching transactions updated after: $updatedTime")
 
         try {
@@ -96,7 +96,7 @@ class AppStartupWorker(
             if (response.isSuccessful && response.body() != null) {
                 val transactions = response.body()!!
                 Log.i(TAG, "Successfully fetched ${transactions.size} transactions from server")
-
+                Log.i(TAG, "Transactions: $transactions")
                 if (transactions.isNotEmpty()) {
                     val entryDao = database.entryDao()
                     val allLocalEntries = entryDao.getAll()
@@ -271,7 +271,8 @@ class AppStartupWorker(
                     transactionType = entry.type.uppercase(Locale.getDefault()),
                     transactionDate = formatDate(entry.created_on),
                     description = if (entry.notes.isBlank()) null else entry.notes,
-                    createdOn = entry.created_on
+                    createdOn = entry.created_on,
+                    clientId = entry.clientId
                 )
 
                 val updateResponse = apiService.updateTransaction(token, email, entry.remoteId, transactionRequest)
@@ -324,7 +325,8 @@ class AppStartupWorker(
                 transactionType = entry.type.uppercase(Locale.getDefault()),
                 transactionDate = formatDate(entry.created_on),
                 description = if (entry.notes.isBlank()) null else entry.notes,
-                createdOn = entry.created_on
+                createdOn = entry.created_on,
+                clientId = entry.clientId
             )
         }
 

@@ -2,6 +2,7 @@ package com.example.expm.activity
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -228,7 +229,8 @@ class AddEntryActivity : AppCompatActivity() {
                     amount = amount,
                     type = type,
                     category = category,
-                    created_on = AppUtils.dateToTimestamp2(date),
+                    created_on = SystemClock.currentThreadTimeMillis(),
+                    transactionDateTimestamp = AppUtils.dateToTimestamp2(date),
                     notes = notes,
                     remoteId = 0L
                 )

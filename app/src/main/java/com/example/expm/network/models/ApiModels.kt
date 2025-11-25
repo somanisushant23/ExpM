@@ -145,7 +145,8 @@ data class TransactionRequest(
     val transactionDate: String,
     val description: String? = null,
     val createdOn: Long? = null,
-    val updatedOn: Long? = null
+    val updatedOn: Long? = null,
+    val clientId: String? = null
 )
 
 data class TransactionResponse(
@@ -157,7 +158,8 @@ data class TransactionResponse(
     val amount: Int,
     val transactionDate: String,
     val createdOn: Long,
-    val updatedOn: Long
+    val updatedOn: Long,
+    val clientId: String? = null
 )
 
 // ==================== Generic Models ====================
