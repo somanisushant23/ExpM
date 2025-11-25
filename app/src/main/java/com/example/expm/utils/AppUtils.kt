@@ -38,4 +38,9 @@ object AppUtils {
             throw IllegalArgumentException("Error parsing date: ${e.message}", e)
         }
     }
+
+    fun capitalizeFirstLetter(text: String): String {
+        if (text.isEmpty()) return text
+        return text.lowercase().replaceFirstChar { it.uppercase() }
+    }
 }

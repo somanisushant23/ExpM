@@ -43,7 +43,7 @@ class EntryAdapter(private val onItemClick: (Entry) -> Unit) : ListAdapter<Entry
             }
             tvCategory.text = entry.category
             tvDate.text = AppUtils.formatTimestampToDate(entry.created_on)
-            tvType.text = entry.type.uppercase()
+            tvType.text = AppUtils.capitalizeFirstLetter(entry.type)
 
             // Set color based on type
             if (entry.type.equals("expense", ignoreCase = true)) {
