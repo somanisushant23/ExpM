@@ -2,9 +2,13 @@ package com.example.expm.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -89,6 +93,64 @@ class InvestmentsActivity : AppCompatActivity() {
                 tvNoInvestments.visibility = View.GONE
                 recyclerInvestments.visibility = View.VISIBLE
             }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_investments, menu)
+
+        // Setup SearchView
+        val searchItem = menu.findItem(R.id.action_search)
+        val searchView = searchItem?.actionView as? SearchView
+
+        searchView?.apply {
+            queryHint = getString(R.string.search_hint)
+
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    viewModel.setSearchQuery(query ?: "")
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    viewModel.setSearchQuery(newText ?: "")
+                    return true
+                }
+            })
+
+            // Clear search when SearchView is collapsed
+            setOnCloseListener {
+                viewModel.setSearchQuery("")
+                false
+            }
+        }
+
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.sort_date_desc -> {
+                viewModel.setSortOrder("date_desc")
+                Toast.makeText(this, "Sorted by Date (Newest First)", Toast.LENGTH_SHORT).show()
+                true
+            }
+            R.id.sort_date_asc -> {
+                viewModel.setSortOrder("date_asc")
+                Toast.makeText(this, "Sorted by Date (Oldest First)", Toast.LENGTH_SHORT).show()
+                true
+            }
+            R.id.sort_amount_desc -> {
+                viewModel.setSortOrder("amount_desc")
+                Toast.makeText(this, "Sorted by Amount (Highest First)", Toast.LENGTH_SHORT).show()
+                true
+            }
+            R.id.sort_amount_asc -> {
+                viewModel.setSortOrder("amount_asc")
+                Toast.makeText(this, "Sorted by Amount (Lowest First)", Toast.LENGTH_SHORT).show()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
