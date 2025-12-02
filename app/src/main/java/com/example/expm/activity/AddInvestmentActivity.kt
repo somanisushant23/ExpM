@@ -43,9 +43,15 @@ class AddInvestmentActivity : AppCompatActivity() {
         val etNotes = findViewById<EditText>(R.id.et_notes)
         val spinnerCategory = findViewById<Spinner>(R.id.spinner_category)
         val btnSave = findViewById<Button>(R.id.btn_save)
+        val btnDelete = findViewById<Button>(R.id.btn_delete)
 
         // Set screen title dynamically
         tvScreenTitle.text = getString(if (isEditing) R.string.edit_investment else R.string.add_investment)
+
+        // Show delete button only when editing
+        if (isEditing) {
+            btnDelete.visibility = android.view.View.VISIBLE
+        }
 
         // Obtain ViewModel
         viewModel = ViewModelProvider(
@@ -205,6 +211,35 @@ class AddInvestmentActivity : AppCompatActivity() {
                 Toast.makeText(this, "Investment added successfully", Toast.LENGTH_SHORT).show()
             }
             finish()
+        }
+
+        // Delete button click listener
+        btnDelete.setOnClickListener {
+            if (editingInvestmentId != null) {
+                // Show confirmation dialog
+                androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Delete Investment")
+                    .setMessage("Are you sure you want to delete this investment?")
+                    .setPositiveButton("Delete") { _, _ ->
+                        val investment = Investment(
+                            id = editingInvestmentId!!,
+                            title = intent.getStringExtra("INVESTMENT_TITLE") ?: "",
+                            amount = intent.getIntExtra("INVESTMENT_AMOUNT", 0),
+                            type = intent.getStringExtra("INVESTMENT_TYPE") ?: "",
+                            principalDateTimestamp = intent.getLongExtra("INVESTMENT_PRINCIPAL_DATE", 0),
+                            returnRate = intent.getFloatExtra("INVESTMENT_RETURN_RATE", 0f),
+                            maturityDateTimestamp = intent.getLongExtra("INVESTMENT_MATURITY_DATE", 0),
+                            notes = intent.getStringExtra("INVESTMENT_NOTES") ?: "",
+                            remoteId = intent.getLongExtra("INVESTMENT_REMOTE_ID", 0),
+                            clientId = intent.getStringExtra("INVESTMENT_CLIENT_ID") ?: ""
+                        )
+                        viewModel.deleteInvestment(investment)
+                        Toast.makeText(this, "Investment deleted successfully", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            }
         }
     }
 

@@ -138,18 +138,21 @@
             android:autofillHints="none"
             android:layout_marginBottom="16dp" />
 
-        <!-- Buttons (Save only for now) -->
-        <LinearLayout
+        <!-- Buttons -->
+        <Button
+            android:id="@+id/btn_save"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:text="@string/save" />
 
-            <Button
-                android:id="@+id/btn_save"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/save" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/btn_delete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/delete"
+            android:visibility="gone"
+            android:backgroundTint="@android:color/holo_red_dark" />
 
     </LinearLayout>
 

@@ -24,7 +24,7 @@ interface InvestmentDao {
     suspend fun getAll(): List<Investment>
 
     // Reactive stream of investments; Room will emit updates when the table changes
-    @Query("SELECT * FROM investments ORDER BY created_on DESC")
+    @Query("SELECT * FROM investments WHERE isDeleted = 0 ORDER BY created_on DESC")
     fun getAllFlow(): Flow<List<Investment>>
 
     // Reactive single Investment by id

@@ -46,6 +46,18 @@ class AddInvestmentViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
+    fun deleteInvestment(investment: Investment) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    db.investmentDao().update(investment.copy(isDeleted = true, isPersisted = false, isUpdated = true))
+                } catch (t: Throwable) {
+                    Log.e("AddInvestmentViewModel", "Error deleting investment", t)
+                }
+            }
+        }
+    }
+
     fun clearResults() {
         _insertResult.value = null
     }
