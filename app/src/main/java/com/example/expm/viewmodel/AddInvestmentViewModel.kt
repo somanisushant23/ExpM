@@ -34,6 +34,18 @@ class AddInvestmentViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
+    fun updateInvestment(investment: Investment) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    db.investmentDao().update(investment)
+                } catch (t: Throwable) {
+                    Log.e("AddInvestmentViewModel", "Error updating investment", t)
+                }
+            }
+        }
+    }
+
     fun clearResults() {
         _insertResult.value = null
     }

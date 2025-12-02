@@ -29,6 +29,12 @@ object AppUtils {
         }
     }
 
+    fun getFutureTimestamp(yearsInFuture: Int): Long {
+        val calendar = java.util.Calendar.getInstance()
+        calendar.add(java.util.Calendar.YEAR, yearsInFuture)
+        return calendar.timeInMillis
+    }
+
     fun dateToTimestamp2(dateString: String): Long {
        val sdf = java.text.SimpleDateFormat("dd-MM-yyyy", java.util.Locale.getDefault())
         return try {

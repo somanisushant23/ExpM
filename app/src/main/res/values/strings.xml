@@ -84,6 +84,7 @@
     <string name="investment_tracking_info">Track your investments by adding entries with categories like:\n\n• Investment\n• Stock\n• Mutual Fund\n• Crypto\n• Bond\n• Fixed Deposit (FD)</string>
     <string name="rs_zero">Rs 0</string>
     <string name="add_investment">Add Investment</string>
+    <string name="edit_investment">Edit Investment</string>
 
     <!-- Add Investment screen strings -->
     <string name="add_investment_title">Add Investment</string>

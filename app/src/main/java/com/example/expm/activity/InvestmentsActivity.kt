@@ -39,9 +39,21 @@ class InvestmentsActivity : AppCompatActivity() {
         val recyclerInvestments = findViewById<RecyclerView>(R.id.recycler_investments)
 
         // Setup RecyclerView
-        adapter = InvestmentAdapter { _ ->
-            // Handle investment item click - for now, you could open AddInvestmentActivity in edit mode
-            // TODO: Implement edit functionality if needed
+        adapter = InvestmentAdapter { investment ->
+            // Handle investment item click - open AddInvestmentActivity in edit mode
+            val intent = Intent(this, AddInvestmentActivity::class.java).apply {
+                putExtra("INVESTMENT_ID", investment.id)
+                putExtra("INVESTMENT_TITLE", investment.title)
+                putExtra("INVESTMENT_AMOUNT", investment.amount)
+                putExtra("INVESTMENT_TYPE", investment.type)
+                putExtra("INVESTMENT_RETURN_RATE", investment.returnRate)
+                putExtra("INVESTMENT_PRINCIPAL_DATE", investment.principalDateTimestamp)
+                putExtra("INVESTMENT_MATURITY_DATE", investment.maturityDateTimestamp)
+                putExtra("INVESTMENT_NOTES", investment.notes)
+                putExtra("INVESTMENT_CLIENT_ID", investment.clientId)
+                putExtra("INVESTMENT_REMOTE_ID", investment.remoteId)
+            }
+            startActivity(intent)
         }
         recyclerInvestments.layoutManager = LinearLayoutManager(this)
         recyclerInvestments.adapter = adapter
