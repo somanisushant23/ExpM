@@ -23,4 +23,13 @@
         <item>Shares</item>
         <item>Others</item>
     </string-array>
+
+    <string-array name="investment_categories">
+        <item>Fixed Deposit</item>
+        <item>Recurring Deposit</item>
+        <item>Mutual Fund</item>
+        <item>Stocks</item>
+        <item>Gold</item>
+        <item>Others</item>
+    </string-array>
 </resources>

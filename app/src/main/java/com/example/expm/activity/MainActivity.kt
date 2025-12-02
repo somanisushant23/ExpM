@@ -125,6 +125,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val intent = Intent(this, AnalyticsActivity::class.java)
                 startActivity(intent)
             }
+            R.id.nav_investments -> {
+                val intent = Intent(this, InvestmentsActivity::class.java)
+                startActivity(intent)
+            }
             R.id.nav_settings -> {
                 val intent = Intent(this, SettingsActivity::class.java)
                 startActivity(intent)

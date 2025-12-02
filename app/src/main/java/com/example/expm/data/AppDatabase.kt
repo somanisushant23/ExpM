@@ -8,10 +8,12 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import java.util.UUID
 
-@Database(entities = [Entry::class, Utility::class], version = 10, exportSchema = false)
+@Database(entities = [Entry::class, Utility::class, Investment::class], version = 11, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun entryDao(): EntryDao
     abstract fun utilityDao(): UtilityDao
+
+    abstract fun investmentDao(): InvestmentDao
 
     companion object {
         @Volatile
