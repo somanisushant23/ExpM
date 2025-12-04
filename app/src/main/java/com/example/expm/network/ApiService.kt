@@ -110,5 +110,18 @@ interface ApiService {
         @Query("start_date") startDate: Long? = null,
         @Query("end_date") endDate: Long? = null
     ): Response<AnalyticsSummaryResponse>
+
+    @POST("investments")
+    suspend fun postInvestments(
+        @Header("Authorization") token: String,
+        @Header("email") email: String,
+        @Body investments: List<InvestmentRequest>
+    ): Response<List<InvestmentResponse>>
+
+    @GET("investments")
+    suspend fun getInvestments(
+        @Header("Authorization") token: String,
+        @Header("email") email: String
+    ): Response<List<InvestmentResponse>>
 }
 

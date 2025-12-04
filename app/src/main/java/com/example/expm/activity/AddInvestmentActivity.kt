@@ -11,8 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.expm.R
-import com.example.expm.data.Investment
-import com.example.expm.utils.AppUtils
+import com.example.expm.network.models.InvestmentType
 import com.example.expm.viewmodel.AddInvestmentViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -35,7 +34,6 @@ class AddInvestmentActivity : AppCompatActivity() {
         supportActionBar?.title = getString(if (isEditing) R.string.edit_investment else R.string.add_investment)
 
         val tvScreenTitle = findViewById<TextView>(R.id.tv_screen_title)
-        val etTitle = findViewById<EditText>(R.id.et_title)
         val etAmount = findViewById<EditText>(R.id.et_amount)
         val etReturnRate = findViewById<EditText>(R.id.et_return_rate)
         val etDate = findViewById<EditText>(R.id.et_date)
@@ -107,7 +105,6 @@ class AddInvestmentActivity : AppCompatActivity() {
         // If editing, populate fields with existing data
         if (isEditing) {
             editingInvestmentId = intent.getLongExtra("INVESTMENT_ID", 0)
-            etTitle.setText(intent.getStringExtra("INVESTMENT_TITLE"))
             etAmount.setText(intent.getIntExtra("INVESTMENT_AMOUNT", 0).toString())
             etReturnRate.setText(intent.getFloatExtra("INVESTMENT_RETURN_RATE", 0f).toString())
             etNotes.setText(intent.getStringExtra("INVESTMENT_NOTES"))
@@ -135,9 +132,31 @@ class AddInvestmentActivity : AppCompatActivity() {
             }
         }
 
+        // Observe postInvestmentState
+        viewModel.postInvestmentState.observe(this) { resource ->
+            when (resource) {
+                is com.example.expm.network.Resource.Loading -> {
+                    btnSave.isEnabled = false
+                    btnSave.text = "Saving..."
+                }
+                is com.example.expm.network.Resource.Success -> {
+                    Toast.makeText(this, "Investment saved successfully", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                is com.example.expm.network.Resource.Error -> {
+                    btnSave.isEnabled = true
+                    btnSave.text = "Save"
+                    Toast.makeText(this, "Error: ${resource.message}", Toast.LENGTH_LONG).show()
+                }
+                null -> {
+                    btnSave.isEnabled = true
+                    btnSave.text = "Save"
+                }
+            }
+        }
+
         // Save button click listener
         btnSave.setOnClickListener {
-            val title = etTitle.text.toString().trim()
             val amountStr = etAmount.text.toString().trim()
             val returnRateStr = etReturnRate.text.toString().trim()
             val category = spinnerCategory.selectedItem.toString()
@@ -170,47 +189,43 @@ class AddInvestmentActivity : AppCompatActivity() {
                 0f
             }
 
-            // Create or update investment entry
-            val investment = if (editingInvestmentId != null) {
-                // Update existing investment
-                Investment(
-                    id = editingInvestmentId!!,
-                    title = title,
-                    amount = amount,
-                    type = category,
-                    principalDateTimestamp = dateTimestamp,
-                    returnRate = returnRate,
-                    maturityDateTimestamp = if(!maturityDateStr.isEmpty()) AppUtils.dateToTimestamp2(maturityDateStr) else AppUtils.getFutureTimestamp(5),
-                    notes = notes.trim(),
-                    remoteId = intent.getLongExtra("INVESTMENT_REMOTE_ID", 0),
-                    clientId = intent.getStringExtra("INVESTMENT_CLIENT_ID") ?: UUID.randomUUID().toString(),
-                    updated_on = System.currentTimeMillis(),
-                    isUpdated = true
-                )
+            // Format transaction date to "dd-MM-yyyy" format
+            val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+            val transactionDate = dateFormat.format(calendar.time)
+            val creationDate = transactionDate // Use same date as creation date
+            val maturityDate = if (maturityDateStr.isNotEmpty()) {
+                maturityDateStr
             } else {
-                // Create new investment
-                Investment(
-                    title = title,
-                    amount = amount,
-                    type = category,
-                    principalDateTimestamp = dateTimestamp,
-                    returnRate = returnRate,
-                    maturityDateTimestamp = if(!maturityDateStr.isEmpty()) AppUtils.dateToTimestamp2(maturityDateStr) else AppUtils.getFutureTimestamp(5),
-                    notes = notes.trim(),
-                    remoteId = 0,
-                    clientId = UUID.randomUUID().toString()
-                )
+                transactionDate // Default to transaction date if not set
             }
 
-            // Insert or update entry
-            if (editingInvestmentId != null) {
-                viewModel.updateInvestment(investment)
-                Toast.makeText(this, "Investment updated successfully", Toast.LENGTH_SHORT).show()
-            } else {
-                viewModel.insertInvestment(investment)
-                Toast.makeText(this, "Investment added successfully", Toast.LENGTH_SHORT).show()
+            // Map category string to InvestmentType enum
+            val investmentType = when (category) {
+                "Fixed Deposit" -> InvestmentType.FIXED_DEPOSIT
+                "Recurring Deposit" -> InvestmentType.RECURRING_DEPOSIT
+                "EPF" -> InvestmentType.EPF
+                "PPF" -> InvestmentType.PPF
+                "SSY" -> InvestmentType.SSY
+                "Mutual Fund" -> InvestmentType.MUTUAL_FUNDS
+                "Stocks" -> InvestmentType.SHARES
+                "Gold" -> InvestmentType.GOLD
+                else -> InvestmentType.OTHER
             }
-            finish()
+
+            // Generate clientId
+            val clientId = UUID.randomUUID().toString()
+
+            // Call ViewModel to post investment
+            viewModel.postInvestment(
+                amount = amount,
+                expectedReturnRate = returnRate,
+                investmentType = investmentType,
+                creationDate = creationDate,
+                maturityDate = maturityDate,
+                transactionDate = transactionDate,
+                description = notes.ifEmpty { null },
+                clientId = clientId
+            )
         }
 
         // Delete button click listener
@@ -221,20 +236,7 @@ class AddInvestmentActivity : AppCompatActivity() {
                     .setTitle("Delete Investment")
                     .setMessage("Are you sure you want to delete this investment?")
                     .setPositiveButton("Delete") { _, _ ->
-                        val investment = Investment(
-                            id = editingInvestmentId!!,
-                            title = intent.getStringExtra("INVESTMENT_TITLE") ?: "",
-                            amount = intent.getIntExtra("INVESTMENT_AMOUNT", 0),
-                            type = intent.getStringExtra("INVESTMENT_TYPE") ?: "",
-                            principalDateTimestamp = intent.getLongExtra("INVESTMENT_PRINCIPAL_DATE", 0),
-                            returnRate = intent.getFloatExtra("INVESTMENT_RETURN_RATE", 0f),
-                            maturityDateTimestamp = intent.getLongExtra("INVESTMENT_MATURITY_DATE", 0),
-                            notes = intent.getStringExtra("INVESTMENT_NOTES") ?: "",
-                            remoteId = intent.getLongExtra("INVESTMENT_REMOTE_ID", 0),
-                            clientId = intent.getStringExtra("INVESTMENT_CLIENT_ID") ?: ""
-                        )
-                        viewModel.deleteInvestment(investment)
-                        Toast.makeText(this, "Investment deleted successfully", Toast.LENGTH_SHORT).show()
+
                         finish()
                     }
                     .setNegativeButton("Cancel", null)

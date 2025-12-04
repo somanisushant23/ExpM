@@ -21,22 +21,6 @@
             android:accessibilityHeading="true"
             android:layout_marginBottom="12dp" />
 
-        <!-- Title -->
-        <TextView
-            android:id="@+id/label_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/label_title"
-            android:labelFor="@id/et_title" />
-        <EditText
-            android:id="@+id/et_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:importantForAutofill="no"
-            android:autofillHints="name"
-            android:layout_marginBottom="12dp" />
-
         <!-- Amount -->
         <TextView
             android:id="@+id/label_amount"
@@ -64,6 +48,7 @@
             android:id="@+id/spinner_category"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:spinnerMode="dialog"
             android:contentDescription="@string/label_investment_type"
             android:prompt="@string/label_investment_type"
             android:importantForAutofill="no"
