@@ -8,7 +8,7 @@ import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
 import com.example.expm.R
 import com.example.expm.network.models.InvestmentType
@@ -18,9 +18,10 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.UUID
 
-class AddInvestmentActivity : AppCompatActivity() {
+class AddInvestmentActivity : BaseActivity() {
     private lateinit var viewModel: AddInvestmentViewModel
     private var editingInvestmentId: Long? = null
+    private var editingClientId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,6 +106,7 @@ class AddInvestmentActivity : AppCompatActivity() {
         // If editing, populate fields with existing data
         if (isEditing) {
             editingInvestmentId = intent.getLongExtra("INVESTMENT_ID", 0)
+            editingClientId = intent.getStringExtra("INVESTMENT_CLIENT_ID")
             etAmount.setText(intent.getIntExtra("INVESTMENT_AMOUNT", 0).toString())
             etReturnRate.setText(intent.getFloatExtra("INVESTMENT_RETURN_RATE", 0f).toString())
             etNotes.setText(intent.getStringExtra("INVESTMENT_NOTES"))
@@ -155,21 +157,61 @@ class AddInvestmentActivity : AppCompatActivity() {
             }
         }
 
+        // Observe deleteInvestmentState
+        viewModel.deleteInvestmentState.observe(this) { resource ->
+            when (resource) {
+                is com.example.expm.network.Resource.Loading -> {
+                    btnDelete.isEnabled = false
+                    btnDelete.text = "Deleting..."
+                }
+                is com.example.expm.network.Resource.Success -> {
+                    Toast.makeText(this, "Investment deleted successfully", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                is com.example.expm.network.Resource.Error -> {
+                    btnDelete.isEnabled = true
+                    btnDelete.text = "Delete"
+                    Toast.makeText(this, "Error: ${resource.message}", Toast.LENGTH_LONG).show()
+                }
+                null -> {
+                    btnDelete.isEnabled = true
+                    btnDelete.text = "Delete"
+                }
+            }
+        }
+
+        // Observe updateInvestmentState
+        viewModel.updateInvestmentState.observe(this) { resource ->
+            when (resource) {
+                is com.example.expm.network.Resource.Loading -> {
+                    btnSave.isEnabled = false
+                    btnSave.text = "Updating..."
+                }
+                is com.example.expm.network.Resource.Success -> {
+                    Toast.makeText(this, "Investment updated successfully", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                is com.example.expm.network.Resource.Error -> {
+                    btnSave.isEnabled = true
+                    btnSave.text = "Save"
+                    Toast.makeText(this, "Error: ${resource.message}", Toast.LENGTH_LONG).show()
+                }
+                null -> {
+                    btnSave.isEnabled = true
+                    btnSave.text = "Save"
+                }
+            }
+        }
+
         // Save button click listener
         btnSave.setOnClickListener {
             val amountStr = etAmount.text.toString().trim()
             val returnRateStr = etReturnRate.text.toString().trim()
             val category = spinnerCategory.selectedItem.toString()
             val notes = etNotes.text.toString().trim()
-            val dateTimestamp = calendar.timeInMillis
             val maturityDateStr = etMaturityDate.text.toString().trim()
 
             // Validation
-            if (title.isEmpty()) {
-                Toast.makeText(this, "Please enter a title", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
             if (amountStr.isEmpty()) {
                 Toast.makeText(this, "Please enter an amount", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -212,20 +254,35 @@ class AddInvestmentActivity : AppCompatActivity() {
                 else -> InvestmentType.OTHER
             }
 
-            // Generate clientId
-            val clientId = UUID.randomUUID().toString()
-
-            // Call ViewModel to post investment
-            viewModel.postInvestment(
-                amount = amount,
-                expectedReturnRate = returnRate,
-                investmentType = investmentType,
-                creationDate = creationDate,
-                maturityDate = maturityDate,
-                transactionDate = transactionDate,
-                description = notes.ifEmpty { null },
-                clientId = clientId
-            )
+            // Check if updating or creating new investment
+            if (editingInvestmentId != null) {
+                // Update existing investment - use existing clientId or generate new one
+                val clientId = editingClientId
+                viewModel.updateInvestment(
+                    remoteId = editingInvestmentId!!,
+                    amount = amount,
+                    expectedReturnRate = returnRate,
+                    investmentType = investmentType,
+                    creationDate = creationDate,
+                    maturityDate = maturityDate,
+                    transactionDate = transactionDate,
+                    description = notes.ifEmpty { null },
+                    clientId = clientId
+                )
+            } else {
+                // Create new investment
+                val clientId = UUID.randomUUID().toString()
+                viewModel.postInvestment(
+                    amount = amount,
+                    expectedReturnRate = returnRate,
+                    investmentType = investmentType,
+                    creationDate = creationDate,
+                    maturityDate = maturityDate,
+                    transactionDate = transactionDate,
+                    description = notes.ifEmpty { null },
+                    clientId = clientId
+                )
+            }
         }
 
         // Delete button click listener
@@ -236,8 +293,8 @@ class AddInvestmentActivity : AppCompatActivity() {
                     .setTitle("Delete Investment")
                     .setMessage("Are you sure you want to delete this investment?")
                     .setPositiveButton("Delete") { _, _ ->
-
-                        finish()
+                        // Call ViewModel to delete investment
+                        viewModel.deleteInvestment(editingInvestmentId!!)
                     }
                     .setNegativeButton("Cancel", null)
                     .show()

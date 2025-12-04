@@ -9,7 +9,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.expm.R
 import com.example.expm.data.Entry
@@ -19,7 +18,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class AddEntryActivity : AppCompatActivity() {
+class AddEntryActivity : BaseActivity() {
     private lateinit var viewModel: AddEntryViewModel
     private var currentEntry: Entry? = null
     private var skipCategoryReset = false

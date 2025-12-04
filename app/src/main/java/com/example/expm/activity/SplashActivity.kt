@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.expm.R
 import com.example.expm.data.AppDatabase
@@ -18,7 +17,7 @@ import kotlinx.coroutines.withContext
 import java.util.Calendar
 
 @SuppressLint("CustomSplashScreen")
-class SplashActivity : AppCompatActivity() {
+class SplashActivity : BaseActivity() {
     private lateinit var biometricHelper: BiometricHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {

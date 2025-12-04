@@ -3,10 +3,8 @@ package com.example.expm.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,10 +14,9 @@ import com.example.expm.adapter.InvestmentsAdapter
 import com.example.expm.network.Resource
 import com.example.expm.viewmodel.InvestmentsViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import java.text.NumberFormat
 import java.util.Locale
 
-class InvestmentsActivity : AppCompatActivity() {
+class InvestmentsActivity : BaseActivity() {
 
     private lateinit var viewModel: InvestmentsViewModel
     private lateinit var investmentsAdapter: InvestmentsAdapter
@@ -42,7 +39,54 @@ class InvestmentsActivity : AppCompatActivity() {
         val recyclerInvestments = findViewById<RecyclerView>(R.id.recycler_investments)
 
         // Setup RecyclerView
-        investmentsAdapter = InvestmentsAdapter()
+        investmentsAdapter = InvestmentsAdapter { investment ->
+            // Open AddInvestmentActivity with investment details
+            val intent = Intent(this, AddInvestmentActivity::class.java).apply {
+                putExtra("INVESTMENT_ID", investment.id)
+                putExtra("INVESTMENT_AMOUNT", investment.amount.replace(",", "").toIntOrNull() ?: 0)
+                putExtra("INVESTMENT_RETURN_RATE", investment.expectedReturnRate)
+                putExtra("INVESTMENT_NOTES", investment.description)
+                putExtra("INVESTMENT_CLIENT_ID", investment.clientId)
+
+                // Map InvestmentType enum to display name
+                val investmentTypeDisplay = when (investment.investmentType.name) {
+                    "FIXED_DEPOSIT" -> "Fixed Deposit"
+                    "RECURRING_DEPOSIT" -> "Recurring Deposit"
+                    "EPF" -> "EPF"
+                    "PPF" -> "PPF"
+                    "SSY" -> "SSY"
+                    "MUTUAL_FUNDS" -> "Mutual Fund"
+                    "SHARES" -> "Stocks"
+                    "GOLD" -> "Gold"
+                    else -> "Others"
+                }
+                putExtra("INVESTMENT_TYPE", investmentTypeDisplay)
+
+                // Parse and pass creation date timestamp
+                try {
+                    val dateFormat = java.text.SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+                    val creationDate = dateFormat.parse(investment.creationDate)
+                    creationDate?.let {
+                        putExtra("INVESTMENT_PRINCIPAL_DATE", it.time)
+                    }
+                } catch (e: Exception) {
+                    // Use transactionDateTimestamp as fallback
+                    putExtra("INVESTMENT_PRINCIPAL_DATE", investment.transactionDateTimestamp)
+                }
+
+                // Parse and pass maturity date timestamp
+                try {
+                    val dateFormat = java.text.SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+                    val maturityDate = dateFormat.parse(investment.maturityDate)
+                    maturityDate?.let {
+                        putExtra("INVESTMENT_MATURITY_DATE", it.time)
+                    }
+                } catch (e: Exception) {
+                    // No maturity date set
+                }
+            }
+            startActivity(intent)
+        }
         recyclerInvestments.apply {
             layoutManager = LinearLayoutManager(this@InvestmentsActivity)
             adapter = investmentsAdapter
@@ -101,6 +145,12 @@ class InvestmentsActivity : AppCompatActivity() {
         // Fetch investments
         viewModel.getInvestments()
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh investments when returning to this activity
+        viewModel.getInvestments()
     }
 
     override fun onSupportNavigateUp(): Boolean {

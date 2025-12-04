@@ -13,7 +13,9 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class InvestmentsAdapter : ListAdapter<InvestmentResponse, InvestmentsAdapter.InvestmentViewHolder>(InvestmentDiffCallback()) {
+class InvestmentsAdapter(
+    private val onItemClick: (InvestmentResponse) -> Unit = {}
+) : ListAdapter<InvestmentResponse, InvestmentsAdapter.InvestmentViewHolder>(InvestmentDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InvestmentViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -22,7 +24,11 @@ class InvestmentsAdapter : ListAdapter<InvestmentResponse, InvestmentsAdapter.In
     }
 
     override fun onBindViewHolder(holder: InvestmentViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val investment = getItem(position)
+        holder.bind(investment)
+        holder.itemView.setOnClickListener {
+            onItemClick(investment)
+        }
     }
 
     class InvestmentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

@@ -123,5 +123,19 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Header("email") email: String
     ): Response<List<InvestmentResponse>>
+
+    @PATCH("investments")
+    suspend fun updateInvestment(
+        @Header("Authorization") token: String,
+        @Header("email") email: String,
+        @Body investments: InvestmentRequest
+    ): Response<InvestmentResponse>
+
+    @DELETE("investments/{id}")
+    suspend fun deleteInvestment(
+        @Header("Authorization") token: String,
+        @Header("email") email: String,
+        @Path("id") remoteId: Long
+    ): Response<GenericResponse>
 }
 
