@@ -2,13 +2,16 @@ package com.example.expm.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.expm.R
 import com.example.expm.adapter.InvestmentsAdapter
 import com.example.expm.network.Resource
@@ -37,6 +40,12 @@ class InvestmentsActivity : BaseActivity() {
         val tvNoInvestments = findViewById<TextView>(R.id.tv_no_investments)
         val fabAddInvestment = findViewById<FloatingActionButton>(R.id.fab_add_investment)
         val recyclerInvestments = findViewById<RecyclerView>(R.id.recycler_investments)
+        val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipe_refresh)
+
+        // Setup SwipeRefreshLayout
+        swipeRefresh.setOnRefreshListener {
+            viewModel.getInvestments()
+        }
 
         // Setup RecyclerView
         investmentsAdapter = InvestmentsAdapter { investment ->
@@ -109,11 +118,16 @@ class InvestmentsActivity : BaseActivity() {
         viewModel.investmentsState.observe(this) { resource ->
             when (resource) {
                 is Resource.Loading -> {
-                    // Show loading state
-                    tvNoInvestments.visibility = View.GONE
-                    recyclerInvestments.visibility = View.GONE
+                    // Show loading state (but don't hide views if refreshing)
+                    if (!swipeRefresh.isRefreshing) {
+                        tvNoInvestments.visibility = View.GONE
+                        recyclerInvestments.visibility = View.GONE
+                    }
                 }
                 is Resource.Success -> {
+                    // Stop refresh animation
+                    swipeRefresh.isRefreshing = false
+
                     val investments = resource.data
                     if (investments.isNullOrEmpty()) {
                         // Show empty state
@@ -127,6 +141,9 @@ class InvestmentsActivity : BaseActivity() {
                     }
                 }
                 is Resource.Error -> {
+                    // Stop refresh animation
+                    swipeRefresh.isRefreshing = false
+
                     // Show error message
                     tvNoInvestments.visibility = View.VISIBLE
                     recyclerInvestments.visibility = View.GONE
@@ -138,6 +155,7 @@ class InvestmentsActivity : BaseActivity() {
                 }
                 else -> {
                     // Handle null state
+                    swipeRefresh.isRefreshing = false
                 }
             }
         }
@@ -145,6 +163,38 @@ class InvestmentsActivity : BaseActivity() {
         // Fetch investments
         viewModel.getInvestments()
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_investments, menu)
+
+        // Setup SearchView
+        val searchItem = menu.findItem(R.id.action_search)
+        val searchView = searchItem?.actionView as? SearchView
+
+        searchView?.apply {
+            queryHint = "Search investments"
+
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    viewModel.setSearchQuery(query ?: "")
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    viewModel.setSearchQuery(newText ?: "")
+                    return true
+                }
+            })
+
+            // Clear search when SearchView is collapsed
+            setOnCloseListener {
+                viewModel.setSearchQuery("")
+                false
+            }
+        }
+
+        return true
     }
 
     override fun onResume() {
@@ -158,4 +208,3 @@ class InvestmentsActivity : BaseActivity() {
         return true
     }
 }
-

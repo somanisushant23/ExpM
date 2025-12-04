@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.expm.network.Resource
@@ -21,7 +22,19 @@ class InvestmentsViewModel(application: Application) : AndroidViewModel(applicat
 
     // LiveData for get investments state
     private val _investmentsState = MutableLiveData<Resource<List<InvestmentResponse>>?>()
-    val investmentsState: LiveData<Resource<List<InvestmentResponse>>?> = _investmentsState
+
+    // LiveData for search query
+    private val _searchQuery = MutableLiveData<String>("")
+
+    // Combined LiveData for filtered investments
+    val investmentsState: LiveData<Resource<List<InvestmentResponse>>?> = MediatorLiveData<Resource<List<InvestmentResponse>>?>().apply {
+        addSource(_investmentsState) { resource ->
+            value = filterInvestments(resource, _searchQuery.value ?: "")
+        }
+        addSource(_searchQuery) { query ->
+            value = filterInvestments(_investmentsState.value, query)
+        }
+    }
 
     /**
      * Fetch investments from server
@@ -66,7 +79,35 @@ class InvestmentsViewModel(application: Application) : AndroidViewModel(applicat
             }
         }
     }
+
+    /**
+     * Set search query for filtering investments
+     */
+    fun setSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+
+    /**
+     * Filter investments based on search query
+     */
+    private fun filterInvestments(
+        resource: Resource<List<InvestmentResponse>>?,
+        query: String
+    ): Resource<List<InvestmentResponse>>? {
+        if (resource !is Resource.Success || query.isBlank()) {
+            return resource
+        }
+
+        val filteredList = resource.data?.filter { investment ->
+            val searchText = query.lowercase()
+            investment.investmentType.name.lowercase().contains(searchText) ||
+                    investment.description?.lowercase()?.contains(searchText) == true ||
+                    investment.amount.contains(searchText) ||
+                    investment.expectedReturnRate.toString().contains(searchText) ||
+                    investment.creationDate.contains(searchText) ||
+                    investment.maturityDate.contains(searchText)
+        }
+
+        return Resource.Success(filteredList ?: emptyList())
+    }
 }
-
-
-
