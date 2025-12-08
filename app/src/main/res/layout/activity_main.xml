@@ -41,15 +41,31 @@
                 android:layout_marginTop="4dp"
                 android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/tv_date_range"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=""
-                    android:layout_marginTop="4dp"
-                    android:textSize="12sp"
-                    android:textColor="@android:color/darker_gray"
-                    android:visibility="gone" />
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp">
+
+                    <TextView
+                        android:id="@+id/tv_date_range"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="12sp"
+                        android:textColor="@color/purple_500"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tv_item_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0 items"
+                        android:layout_marginStart="8dp"
+                        android:textSize="12sp"
+                        android:textColor="@android:color/darker_gray" />
+
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tv_total_amount"
@@ -59,6 +75,7 @@
                     android:layout_marginTop="4dp"
                     android:textSize="18sp"
                     android:textStyle="bold" />
+
 
                 <!-- Filter Chips -->
                 <com.google.android.material.chip.ChipGroup

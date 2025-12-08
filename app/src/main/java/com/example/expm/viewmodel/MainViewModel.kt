@@ -103,13 +103,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     else -> true
                 }
 
-                // Then filter by search query (title, amount, or notes)
+                // Then filter by search query (title, amount, category, or notes)
                 val matchesSearch = if (currentSearchQuery.isEmpty()) {
                     true
                 } else {
                     val query = currentSearchQuery.lowercase()
                     entry.title.lowercase().contains(query) ||
                     entry.amount.toString().contains(query) ||
+                    entry.category.lowercase().contains(query) ||
                     entry.notes.lowercase().contains(query)
                 }
 

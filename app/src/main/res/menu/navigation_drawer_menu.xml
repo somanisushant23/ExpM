@@ -10,6 +10,10 @@
             android:icon="@drawable/ic_analytics"
             android:title="@string/nav_analytics" />
         <item
+            android:id="@+id/nav_investments"
+            android:icon="@drawable/ic_investments"
+            android:title="@string/nav_investments" />
+        <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_settings"
             android:title="@string/nav_settings" />

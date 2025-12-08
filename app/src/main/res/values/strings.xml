@@ -12,7 +12,7 @@
     <string name="label_type">Type</string>
     <string name="label_category">Category</string>
     <string name="label_notes">Notes</string>
-    <string name="hint_notes">Add notes (optional)</string>
+    <string name="hint_notes">Add notes</string>
     <string name="save">Save</string>
     <string name="label_date">Date</string>
     <string name="hint_date">Select date</string>
@@ -34,6 +34,7 @@
     <!-- Navigation Drawer strings -->
     <string name="nav_transactions">Transactions</string>
     <string name="nav_analytics">Analytics</string>
+    <string name="nav_investments">Investments</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_about">About</string>
     <string name="nav_logout">Logout</string>
@@ -69,7 +70,27 @@
     <string name="date_range_description">Select a date range to filter transactions</string>
     <string name="start_date">Start Date</string>
     <string name="end_date">End Date</string>
-    <string name="select_date">Select</string>
+    <string name="select_date">Select Date</string>
     <string name="save_date_range">Save Date Range</string>
     <string name="not_set">Not set</string>
+
+    <!-- Investments screen strings -->
+    <string name="investment_summary">Investment Summary</string>
+    <string name="total_invested">Total Invested</string>
+    <string name="total_returns">Total Returns</string>
+    <string name="net_gain_loss">Net Gain/Loss</string>
+    <string name="no_investments">No investment entries found</string>
+    <string name="investment_tracking">📊 Investment Tracking</string>
+    <string name="investment_tracking_info">Track your investments by adding entries with categories like:\n\n• Investment\n• Stock\n• Mutual Fund\n• Crypto\n• Bond\n• Fixed Deposit (FD)</string>
+    <string name="rs_zero">Rs 0</string>
+    <string name="add_investment">Add Investment</string>
+    <string name="edit_investment">Edit Investment</string>
+
+    <!-- Add Investment screen strings -->
+    <string name="add_investment_title">Add Investment</string>
+    <string name="label_description">Description</string>
+    <string name="label_investment_type">Investment Type</string>
+    <string name="label_return_rate">Return Rate (% per annum)</string>
+    <string name="label_investment_date">Investment Date</string>
+    <string name="label_maturity_date">Maturity Date</string>
 </resources>

@@ -5,21 +5,26 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.expm.R
 import com.example.expm.data.AppDatabase
 import com.example.expm.data.Utility
 import com.example.expm.network.utils.TokenManager
+import com.example.expm.utils.BiometricHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
 
 @SuppressLint("CustomSplashScreen")
-class SplashActivity : AppCompatActivity() {
+class SplashActivity : BaseActivity() {
+    private lateinit var biometricHelper: BiometricHelper
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize biometric helper and token manager
+        biometricHelper = BiometricHelper(this)
         setContentView(R.layout.activity_splash)
 
         // Initialize default date range if not present
@@ -29,16 +34,18 @@ class SplashActivity : AppCompatActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             val tokenManager = TokenManager.getInstance(this)
 
-            val intent = if (tokenManager.isLoggedIn()) {
-                // User is logged in, go to MainActivity
-                Intent(this, MainActivity::class.java)
+            if (tokenManager.isLoggedIn()) {
+                // User is logged in, check if biometric authentication is needed
+                if (shouldShowBiometricPrompt(tokenManager)) {
+                    showBiometricOrPinAuthentication(tokenManager)
+                } else {
+                    // No biometric needed, go directly to MainActivity
+                    navigateToMainActivity()
+                }
             } else {
                 // User is not logged in, go to LoginActivity
-                Intent(this, LoginActivity::class.java)
+                navigateToLoginActivity()
             }
-
-            startActivity(intent)
-            finish()
         }, 1500)
     }
 
@@ -96,4 +103,54 @@ class SplashActivity : AppCompatActivity() {
             }
         }
     }
+
+    /**
+     * Check if biometric prompt should be shown
+     */
+    private fun shouldShowBiometricPrompt(tokenManager: TokenManager): Boolean {
+        return biometricHelper.isBiometricOrDeviceCredentialAvailable() &&
+                biometricHelper.isBiometricEnabled() //&&
+                //!tokenManager.isBiometricAuthenticatedForSession()
+    }
+
+    /**
+     * Show biometric or PIN authentication prompt
+     */
+    private fun showBiometricOrPinAuthentication(tokenManager: TokenManager) {
+        biometricHelper.showBiometricOrDeviceCredentialPrompt(
+            onSuccess = {
+                // Authentication successful
+                tokenManager.setBiometricAuthenticatedForSession(true)
+                navigateToMainActivity()
+            },
+            onError = { _ ->
+                // Authentication error (e.g., user cancelled)
+                finish()
+            },
+            onFailed = {
+                // Authentication failed but user can try again
+                // Keep the splash screen and let them retry
+            }
+        )
+    }
+
+    /**
+     * Navigate to MainActivity
+     */
+    private fun navigateToMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+    /**
+     * Navigate to LoginActivity
+     */
+    private fun navigateToLoginActivity() {
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+
 }

@@ -3,7 +3,6 @@ package com.example.expm.data
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import java.util.Date
 import java.util.UUID
 
 @Entity(tableName = "entries",

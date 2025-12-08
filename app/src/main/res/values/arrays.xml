@@ -9,6 +9,7 @@
         <item>Entertainment</item>
         <item>Food</item>
         <item>Grocery</item>
+        <item>Insurance</item>
         <item>Medical</item>
         <item>Rent</item>
         <item>Shopping</item>
@@ -21,6 +22,18 @@
         <item>Salary</item>
         <item>Bank</item>
         <item>Shares</item>
+        <item>Others</item>
+    </string-array>
+
+    <string-array name="investment_categories">
+        <item>Fixed Deposit</item>
+        <item>Recurring Deposit</item>
+        <item>EPF</item>
+        <item>PPF</item>
+        <item>SSY</item>
+        <item>Mutual Fund</item>
+        <item>Stocks</item>
+        <item>Gold</item>
         <item>Others</item>
     </string-array>
 </resources>

@@ -4,6 +4,7 @@
     package="com.example.expm">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
     <application
         android:name=".MyApp"
@@ -39,6 +40,16 @@
             android:name=".activity.AnalyticsActivity"
             android:exported="false"
             android:parentActivityName=".activity.MainActivity" />
+
+        <activity
+            android:name=".activity.InvestmentsActivity"
+            android:exported="false"
+            android:parentActivityName=".activity.MainActivity" />
+
+        <activity
+            android:name=".activity.AddInvestmentActivity"
+            android:exported="false"
+            android:parentActivityName=".activity.InvestmentsActivity" />
 
         <activity
             android:name=".activity.AboutActivity"

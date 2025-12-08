@@ -19,6 +19,7 @@ class TokenManager(context: Context) {
         private const val KEY_TOKEN = "auth_token"
         private const val KEY_USER_NAME = "user_name"
         private const val KEY_USER_EMAIL = "user_email"
+        private const val KEY_BIOMETRIC_AUTHENTICATED = "biometric_authenticated_session"
 
         @Volatile
         private var INSTANCE: TokenManager? = null
@@ -91,6 +92,27 @@ class TokenManager(context: Context) {
     fun getAuthHeader(): String? {
         val token = getToken()
         return if (token != null) "$token" else null
+    }
+
+    /**
+     * Mark that biometric authentication was successful in this session
+     */
+    fun setBiometricAuthenticatedForSession(authenticated: Boolean) {
+        prefs.edit().putBoolean(KEY_BIOMETRIC_AUTHENTICATED, authenticated).apply()
+    }
+
+    /**
+     * Check if biometric authentication was already done in this session
+     */
+    fun isBiometricAuthenticatedForSession(): Boolean {
+        return prefs.getBoolean(KEY_BIOMETRIC_AUTHENTICATED, false)
+    }
+
+    /**
+     * Clear biometric authentication session (call when app goes to background)
+     */
+    fun clearBiometricSession() {
+        prefs.edit().putBoolean(KEY_BIOMETRIC_AUTHENTICATED, false).apply()
     }
 }
 

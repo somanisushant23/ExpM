@@ -164,6 +164,51 @@ data class TransactionResponse(
     val transactionDateTimestamp: Long
 )
 
+// ==================== Investment Models ====================
+
+enum class InvestmentType {
+    FIXED_DEPOSIT,
+    RECURRING_DEPOSIT,
+    EPF,
+    PPF,
+    SSY,
+    SHARES,
+    MUTUAL_FUNDS,
+    GOLD,
+    OTHER
+}
+
+data class InvestmentRequest(
+    val amount: Int,
+    val expectedReturnRate: Float,
+    val investmentType: InvestmentType,
+    val creationDate: String,
+    val maturityDate: String,
+    val transactionType: String,
+    val transactionDate: String,
+    val description: String? = null,
+    val createdOn: Long? = null,
+    val updatedOn: Long? = null,
+    val clientId: String? = null
+)
+
+data class InvestmentResponse(
+    val id: Long,
+    val investmentType: InvestmentType,
+    val expectedReturnRate: Float,
+    val description: String? = null,
+    val category: String,
+    val transactionType: String,
+    val creationDate: String,
+    val maturityDate: String,
+    val amount: String,
+    val transactionDate: String,
+    val createdOn: Long,
+    val updatedOn: Long,
+    val clientId: String? = null,
+    val transactionDateTimestamp: Long
+)
+
 // ==================== Generic Models ====================
 
 data class GenericResponse(

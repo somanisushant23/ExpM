@@ -3,7 +3,6 @@ package com.example.expm.activity
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -13,7 +12,7 @@ import com.example.expm.adapter.MonthlyTrendAdapter
 import com.example.expm.viewmodel.AnalyticsViewModel
 import java.util.Locale
 
-class AnalyticsActivity : AppCompatActivity() {
+class AnalyticsActivity : BaseActivity() {
 
     private lateinit var viewModel: AnalyticsViewModel
     private lateinit var expenseAdapter: CategoryTotalAdapter
