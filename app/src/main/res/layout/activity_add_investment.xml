@@ -105,6 +105,23 @@
             android:importantForAutofill="no"
             android:layout_marginBottom="12dp" />
 
+        <!-- Investment Account Number (Optional) -->
+        <TextView
+            android:id="@+id/label_account_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_account_number"
+            android:labelFor="@id/et_account_number" />
+        <EditText
+            android:id="@+id/et_account_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_account_number"
+            android:inputType="textCapCharacters"
+            android:importantForAutofill="no"
+            android:autofillHints="none"
+            android:layout_marginBottom="12dp" />
+
         <!-- Additional Notes -->
         <TextView
             android:id="@+id/label_notes"

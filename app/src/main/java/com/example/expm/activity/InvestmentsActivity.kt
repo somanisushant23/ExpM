@@ -54,6 +54,7 @@ class InvestmentsActivity : BaseActivity() {
                 putExtra("INVESTMENT_ID", investment.id)
                 putExtra("INVESTMENT_AMOUNT", investment.amount.replace(",", "").toIntOrNull() ?: 0)
                 putExtra("INVESTMENT_RETURN_RATE", investment.expectedReturnRate)
+                putExtra("INVESTMENT_ACCOUNT_NUMBER", investment.investmentAccountNumber)
                 putExtra("INVESTMENT_NOTES", investment.description)
                 putExtra("INVESTMENT_CLIENT_ID", investment.clientId)
 

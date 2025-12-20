@@ -44,6 +44,7 @@ class AddInvestmentViewModel(application: Application) : AndroidViewModel(applic
         maturityDate: String,
         transactionDate: String,
         description: String? = null,
+        investmentAccountNumber: String? = null,
         clientId: String? = null
     ) {
         viewModelScope.launch {
@@ -63,6 +64,7 @@ class AddInvestmentViewModel(application: Application) : AndroidViewModel(applic
                     investmentType = investmentType,
                     expectedReturnRate = expectedReturnRate,
                     creationDate = creationDate,
+                    investmentAccountNumber = investmentAccountNumber,
                     maturityDate = maturityDate,
                     transactionType = "Investment",
                     transactionDate = transactionDate,
@@ -151,6 +153,7 @@ class AddInvestmentViewModel(application: Application) : AndroidViewModel(applic
         maturityDate: String,
         transactionDate: String,
         description: String? = null,
+        investmentAccountNumber: String? = null,
         clientId: String? = null
     ) {
         viewModelScope.launch {
@@ -170,6 +173,7 @@ class AddInvestmentViewModel(application: Application) : AndroidViewModel(applic
                     investmentType = investmentType,
                     expectedReturnRate = expectedReturnRate,
                     creationDate = creationDate,
+                    investmentAccountNumber = investmentAccountNumber,
                     maturityDate = maturityDate,
                     transactionType = "Investment",
                     transactionDate = transactionDate,

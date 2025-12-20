@@ -39,6 +39,7 @@ class AddInvestmentActivity : BaseActivity() {
         val etReturnRate = findViewById<EditText>(R.id.et_return_rate)
         val etDate = findViewById<EditText>(R.id.et_date)
         val etMaturityDate = findViewById<EditText>(R.id.et_maturity_date)
+        val etAccountNumber = findViewById<EditText>(R.id.et_account_number)
         val etNotes = findViewById<EditText>(R.id.et_notes)
         val spinnerCategory = findViewById<Spinner>(R.id.spinner_category)
         val btnSave = findViewById<Button>(R.id.btn_save)
@@ -109,6 +110,7 @@ class AddInvestmentActivity : BaseActivity() {
             editingClientId = intent.getStringExtra("INVESTMENT_CLIENT_ID")
             etAmount.setText(intent.getIntExtra("INVESTMENT_AMOUNT", 0).toString())
             etReturnRate.setText(intent.getFloatExtra("INVESTMENT_RETURN_RATE", 0f).toString())
+            etAccountNumber.setText(intent.getStringExtra("INVESTMENT_ACCOUNT_NUMBER"))
             etNotes.setText(intent.getStringExtra("INVESTMENT_NOTES"))
 
             // Set principal date
@@ -210,6 +212,7 @@ class AddInvestmentActivity : BaseActivity() {
             val category = spinnerCategory.selectedItem.toString()
             val notes = etNotes.text.toString().trim()
             val maturityDateStr = etMaturityDate.text.toString().trim()
+            val accountNumber = etAccountNumber.text.toString().trim()
 
             // Validation
             if (amountStr.isEmpty()) {
@@ -267,6 +270,7 @@ class AddInvestmentActivity : BaseActivity() {
                     maturityDate = maturityDate,
                     transactionDate = transactionDate,
                     description = notes.ifEmpty { null },
+                    investmentAccountNumber = accountNumber.ifEmpty { null },
                     clientId = clientId
                 )
             } else {
@@ -280,6 +284,7 @@ class AddInvestmentActivity : BaseActivity() {
                     maturityDate = maturityDate,
                     transactionDate = transactionDate,
                     description = notes.ifEmpty { null },
+                    investmentAccountNumber = accountNumber.ifEmpty { null },
                     clientId = clientId
                 )
             }
