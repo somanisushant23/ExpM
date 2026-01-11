@@ -16,8 +16,8 @@ android {
         applicationId = "com.example.expm"
         minSdk = 29
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.5"
+        versionCode = 7
+        versionName = "1.6"
 
         resValue("string", "tv_version", "$versionName")
 
@@ -87,6 +87,9 @@ dependencies {
 
     // Biometric authentication
     implementation("androidx.biometric:biometric:1.2.0-alpha05")
+
+    // MPAndroidChart for data visualization
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

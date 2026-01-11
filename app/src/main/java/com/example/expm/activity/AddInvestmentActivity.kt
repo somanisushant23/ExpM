@@ -41,6 +41,7 @@ class AddInvestmentActivity : BaseActivity() {
         val etMaturityDate = findViewById<EditText>(R.id.et_maturity_date)
         val etAccountNumber = findViewById<EditText>(R.id.et_account_number)
         val etNotes = findViewById<EditText>(R.id.et_notes)
+        val etInstitutionName = findViewById<EditText>(R.id.et_institution_name)
         val spinnerCategory = findViewById<Spinner>(R.id.spinner_category)
         val btnSave = findViewById<Button>(R.id.btn_save)
         val btnDelete = findViewById<Button>(R.id.btn_delete)
@@ -112,6 +113,7 @@ class AddInvestmentActivity : BaseActivity() {
             etReturnRate.setText(intent.getFloatExtra("INVESTMENT_RETURN_RATE", 0f).toString())
             etAccountNumber.setText(intent.getStringExtra("INVESTMENT_ACCOUNT_NUMBER"))
             etNotes.setText(intent.getStringExtra("INVESTMENT_NOTES"))
+            etInstitutionName.setText(intent.getStringExtra("INVESTMENT_INSTUTION_NAME"))
 
             // Set principal date
             val principalDate = intent.getLongExtra("INVESTMENT_PRINCIPAL_DATE", 0)
@@ -211,6 +213,7 @@ class AddInvestmentActivity : BaseActivity() {
             val returnRateStr = etReturnRate.text.toString().trim()
             val category = spinnerCategory.selectedItem.toString()
             val notes = etNotes.text.toString().trim()
+            val institutionName = etInstitutionName.text.toString().trim() ?: "NA"
             val maturityDateStr = etMaturityDate.text.toString().trim()
             val accountNumber = etAccountNumber.text.toString().trim()
 
@@ -271,7 +274,8 @@ class AddInvestmentActivity : BaseActivity() {
                     transactionDate = transactionDate,
                     description = notes.ifEmpty { null },
                     investmentAccountNumber = accountNumber.ifEmpty { null },
-                    clientId = clientId
+                    clientId = clientId,
+                    institutionName
                 )
             } else {
                 // Create new investment
@@ -285,7 +289,8 @@ class AddInvestmentActivity : BaseActivity() {
                     transactionDate = transactionDate,
                     description = notes.ifEmpty { null },
                     investmentAccountNumber = accountNumber.ifEmpty { null },
-                    clientId = clientId
+                    clientId = clientId,
+                    institutionName
                 )
             }
         }

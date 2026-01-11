@@ -45,7 +45,8 @@ class AddInvestmentViewModel(application: Application) : AndroidViewModel(applic
         transactionDate: String,
         description: String? = null,
         investmentAccountNumber: String? = null,
-        clientId: String? = null
+        clientId: String? = null,
+        institutionName: String
     ) {
         viewModelScope.launch {
             _postInvestmentState.value = Resource.Loading()
@@ -71,7 +72,8 @@ class AddInvestmentViewModel(application: Application) : AndroidViewModel(applic
                     description = description,
                     createdOn = System.currentTimeMillis(),
                     updatedOn = System.currentTimeMillis(),
-                    clientId = clientId
+                    clientId = clientId,
+                    institutionName = institutionName
                 )
 
                 val response = withContext(Dispatchers.IO) {
@@ -154,7 +156,8 @@ class AddInvestmentViewModel(application: Application) : AndroidViewModel(applic
         transactionDate: String,
         description: String? = null,
         investmentAccountNumber: String? = null,
-        clientId: String? = null
+        clientId: String? = null,
+        institutionName: String
     ) {
         viewModelScope.launch {
             _updateInvestmentState.value = Resource.Loading()
@@ -180,7 +183,8 @@ class AddInvestmentViewModel(application: Application) : AndroidViewModel(applic
                     description = description,
                     createdOn = System.currentTimeMillis(),
                     updatedOn = System.currentTimeMillis(),
-                    clientId = clientId
+                    clientId = clientId,
+                    institutionName = institutionName
                 )
 
                 val response = withContext(Dispatchers.IO) {

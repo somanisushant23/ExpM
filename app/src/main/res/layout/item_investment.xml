@@ -44,8 +44,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Investment Description"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tv_investment_amount"
@@ -69,7 +68,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Category"
-                    android:textSize="14sp"
+                    android:textSize="12sp"
                     android:alpha="0.7" />
 
                 <TextView
@@ -79,7 +78,7 @@
                     android:text="Type"
                     android:textStyle="bold"
                     android:layout_marginStart="16dp"
-                    android:textSize="14sp"
+                    android:textSize="12sp"
                     android:alpha="0.7" />
 
             </LinearLayout>

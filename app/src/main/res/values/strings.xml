@@ -92,7 +92,18 @@
     <string name="label_investment_type">Investment Type</string>
     <string name="label_return_rate">Return Rate (% per annum)</string>
     <string name="label_investment_date">Investment Date</string>
+    <string name="label_institution_name">Institution name</string>
     <string name="label_maturity_date">Maturity Date</string>
     <string name="label_account_number">Investment Account Number</string>
     <string name="hint_account_number">Enter account number (optional)</string>
+
+    <!-- Investment Analytics screen strings -->
+    <string name="investment_analytics">Investment Analytics</string>
+    <string name="view_analytics">View Analytics</string>
+    <string name="expected_returns">Expected Returns</string>
+    <string name="average_return_rate">Average Return Rate</string>
+    <string name="investment_by_type">Investment by Type</string>
+    <string name="maturity_timeline">Maturity Timeline (Next 6 Months)</string>
+    <string name="no_investment_data">No investment data available</string>
+    <string name="no_maturity_data">No investments maturing in the next 6 months</string>
 </resources>

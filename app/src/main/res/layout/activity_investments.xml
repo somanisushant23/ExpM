@@ -38,6 +38,19 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
+                <!-- Analytics Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_view_analytics"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="@string/view_analytics"
+                    android:textColor="@android:color/white"
+                    app:icon="@android:drawable/ic_menu_view"
+                    app:iconTint="@android:color/white"
+                    app:backgroundTint="?attr/colorPrimary"
+                    app:cornerRadius="8dp" />
+
                 <!-- RecyclerView showing investment entries -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_investments"

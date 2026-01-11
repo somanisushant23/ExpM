@@ -52,6 +52,11 @@
             android:parentActivityName=".activity.InvestmentsActivity" />
 
         <activity
+            android:name=".activity.InvestmentAnalyticsActivity"
+            android:exported="false"
+            android:parentActivityName=".activity.InvestmentsActivity" />
+
+        <activity
             android:name=".activity.AboutActivity"
             android:exported="false"
             android:parentActivityName=".activity.MainActivity" />

@@ -42,7 +42,8 @@ class EntryAdapter(private val onItemClick: (Entry) -> Unit) : ListAdapter<Entry
                 tvAmount.text = entry.amount.toString()
             }
             tvCategory.text = entry.category
-            tvDate.text = AppUtils.formatTimestampToDate(entry.created_on)
+            //tvDate.text = AppUtils.formatTimestampToDate(entry.created_on)
+            tvDate.text = AppUtils.formatTimestampToDate(entry.transactionDateTimestamp)
 
             // Set color based on type
             if (entry.type.equals("expense", ignoreCase = true)) {

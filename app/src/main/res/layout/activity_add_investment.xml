@@ -122,6 +122,22 @@
             android:autofillHints="none"
             android:layout_marginBottom="12dp" />
 
+        <!-- Institution name -->
+        <TextView
+            android:id="@+id/label_institution_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_institution_name"
+            android:labelFor="@id/et_institution_name" />
+        <EditText
+            android:id="@+id/et_institution_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:importantForAutofill="no"
+            android:autofillHints="none"
+            android:layout_marginBottom="12dp" />
+
         <!-- Additional Notes -->
         <TextView
             android:id="@+id/label_notes"

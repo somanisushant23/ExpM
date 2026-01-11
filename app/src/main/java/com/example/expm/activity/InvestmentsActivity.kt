@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.expm.R
 import com.example.expm.adapter.InvestmentsAdapter
+import com.example.expm.adapter.InvestmentGroupedItem
 import com.example.expm.network.Resource
+import com.example.expm.network.models.InvestmentResponse
 import com.example.expm.viewmodel.InvestmentsViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.Locale
@@ -41,6 +43,13 @@ class InvestmentsActivity : BaseActivity() {
         val fabAddInvestment = findViewById<FloatingActionButton>(R.id.fab_add_investment)
         val recyclerInvestments = findViewById<RecyclerView>(R.id.recycler_investments)
         val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipe_refresh)
+        val btnViewAnalytics = findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_view_analytics)
+
+        // Analytics button click listener
+        btnViewAnalytics.setOnClickListener {
+            val intent = Intent(this, InvestmentAnalyticsActivity::class.java)
+            startActivity(intent)
+        }
 
         // Setup SwipeRefreshLayout
         swipeRefresh.setOnRefreshListener {
@@ -57,6 +66,7 @@ class InvestmentsActivity : BaseActivity() {
                 putExtra("INVESTMENT_ACCOUNT_NUMBER", investment.investmentAccountNumber)
                 putExtra("INVESTMENT_NOTES", investment.description)
                 putExtra("INVESTMENT_CLIENT_ID", investment.clientId)
+                putExtra("INVESTMENT_INSTUTION_NAME", investment.institutionName)
 
                 // Map InvestmentType enum to display name
                 val investmentTypeDisplay = when (investment.investmentType.name) {
@@ -135,10 +145,13 @@ class InvestmentsActivity : BaseActivity() {
                         tvNoInvestments.visibility = View.VISIBLE
                         recyclerInvestments.visibility = View.GONE
                     } else {
+                        // Group and sort investments by type
+                        val groupedItems = groupAndSortInvestments(investments)
+
                         // Show data
                         tvNoInvestments.visibility = View.GONE
                         recyclerInvestments.visibility = View.VISIBLE
-                        investmentsAdapter.submitList(investments)
+                        investmentsAdapter.submitList(groupedItems)
                     }
                 }
                 is Resource.Error -> {
@@ -207,5 +220,28 @@ class InvestmentsActivity : BaseActivity() {
     override fun onSupportNavigateUp(): Boolean {
         finish()
         return true
+    }
+
+    private fun groupAndSortInvestments(investments: List<InvestmentResponse>): List<InvestmentGroupedItem> {
+        // Group investments by their type name
+        val groupedMap = investments.groupBy { it.investmentType.name }
+
+        // Sort groups alphabetically by investment type name
+        val sortedGroups = groupedMap.toSortedMap()
+
+        // Build the result list with headers and items
+        val result = mutableListOf<InvestmentGroupedItem>()
+
+        for ((investmentType, investmentsList) in sortedGroups) {
+            // Add header for this investment type
+            result.add(InvestmentGroupedItem.Header(investmentType))
+
+            // Add all investments of this type
+            for (investment in investmentsList) {
+                result.add(InvestmentGroupedItem.Item(investment))
+            }
+        }
+
+        return result
     }
 }

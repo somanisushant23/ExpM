@@ -15,19 +15,56 @@ import java.util.Locale
 
 class InvestmentsAdapter(
     private val onItemClick: (InvestmentResponse) -> Unit = {}
-) : ListAdapter<InvestmentResponse, InvestmentsAdapter.InvestmentViewHolder>(InvestmentDiffCallback()) {
+) : ListAdapter<InvestmentGroupedItem, RecyclerView.ViewHolder>(InvestmentGroupedDiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InvestmentViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_investment, parent, false)
-        return InvestmentViewHolder(view)
+    companion object {
+        private const val VIEW_TYPE_HEADER = 0
+        private const val VIEW_TYPE_ITEM = 1
     }
 
-    override fun onBindViewHolder(holder: InvestmentViewHolder, position: Int) {
-        val investment = getItem(position)
-        holder.bind(investment)
-        holder.itemView.setOnClickListener {
-            onItemClick(investment)
+    override fun getItemViewType(position: Int): Int {
+        return when (getItem(position)) {
+            is InvestmentGroupedItem.Header -> VIEW_TYPE_HEADER
+            is InvestmentGroupedItem.Item -> VIEW_TYPE_ITEM
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            VIEW_TYPE_HEADER -> {
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_investment_header, parent, false)
+                InvestmentHeaderViewHolder(view)
+            }
+            else -> {
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_investment, parent, false)
+                InvestmentViewHolder(view)
+            }
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val item = getItem(position)
+        when (item) {
+            is InvestmentGroupedItem.Header -> {
+                (holder as InvestmentHeaderViewHolder).bind(item.investmentType)
+            }
+            is InvestmentGroupedItem.Item -> {
+                val viewHolder = holder as InvestmentViewHolder
+                viewHolder.bind(item.investment)
+                viewHolder.itemView.setOnClickListener {
+                    onItemClick(item.investment)
+                }
+            }
+        }
+    }
+
+    class InvestmentHeaderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val tvSectionHeader: TextView = itemView.findViewById(R.id.tv_section_header)
+
+        fun bind(investmentType: String) {
+            tvSectionHeader.text = investmentType
         }
     }
 
@@ -39,7 +76,8 @@ class InvestmentsAdapter(
         private val viewTypeIndicator: View = itemView.findViewById(R.id.view_type_indicator)
 
         fun bind(investment: InvestmentResponse) {
-            tvDescription.text = investment.investmentType.name
+            //tvDescription.text = investment.investmentType.name
+            tvDescription.text = investment.institutionName
 
             // Format amount
             try {
@@ -50,7 +88,7 @@ class InvestmentsAdapter(
             }
 
             // Set category
-            tvCategory.text = investment.creationDate
+            tvCategory.text = "Maturity:" + investment.maturityDate
 
             // Set transaction type
             "@ ${investment.expectedReturnRate}".also { tvType.text = it }
@@ -81,12 +119,18 @@ class InvestmentsAdapter(
         }
     }
 
-    class InvestmentDiffCallback : DiffUtil.ItemCallback<InvestmentResponse>() {
-        override fun areItemsTheSame(oldItem: InvestmentResponse, newItem: InvestmentResponse): Boolean {
-            return oldItem.id == newItem.id
+    class InvestmentGroupedDiffCallback : DiffUtil.ItemCallback<InvestmentGroupedItem>() {
+        override fun areItemsTheSame(oldItem: InvestmentGroupedItem, newItem: InvestmentGroupedItem): Boolean {
+            return when {
+                oldItem is InvestmentGroupedItem.Header && newItem is InvestmentGroupedItem.Header ->
+                    oldItem.investmentType == newItem.investmentType
+                oldItem is InvestmentGroupedItem.Item && newItem is InvestmentGroupedItem.Item ->
+                    oldItem.investment.id == newItem.investment.id
+                else -> false
+            }
         }
 
-        override fun areContentsTheSame(oldItem: InvestmentResponse, newItem: InvestmentResponse): Boolean {
+        override fun areContentsTheSame(oldItem: InvestmentGroupedItem, newItem: InvestmentGroupedItem): Boolean {
             return oldItem == newItem
         }
     }

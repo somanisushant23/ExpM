@@ -324,7 +324,7 @@ class AppStartupWorker(
                 amount = entry.amount.toInt(),
                 category = entry.category,
                 transactionType = entry.type.uppercase(Locale.getDefault()),
-                transactionDate = formatDate(entry.created_on),
+                transactionDate = formatDate(entry.transactionDateTimestamp),
                 description = if (entry.notes.isBlank()) null else entry.notes,
                 createdOn = entry.created_on,
                 clientId = entry.clientId
